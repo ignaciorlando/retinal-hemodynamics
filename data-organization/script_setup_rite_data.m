@@ -19,14 +19,22 @@ mkdir(fullfile(output_folder, 'tmp'));
 zip_filename = fullfile(input_folder, 'AV_groundTruth.zip');
 
 % check if the file exists
-if exist(zip_filename, 'file') ~= 0
-    % unzip the file
-    fprintf('Unzipping AV_groundTruth file...\n');
-    % unzip on output_folder/tmp
-    unzip(zip_filename, fullfile(output_folder, 'tmp'));
-else
-    error(['File ', zip_filename, ' not found']);
+if exist(zip_filename, 'file') == 0
+    % file not found, trying to download
+    fprintf('File not found. Trying to download...\n');
+    try
+        websave(zip_filename, ...
+            'http://webeye.ophth.uiowa.edu/abramoff/AV_groundTruth.zip');
+        fprintf('File downloaded!\n');
+    catch exception
+        error('Couldnt download the file. Please, try manually with http://webeye.ophth.uiowa.edu/abramoff/AV_groundTruth.zip');
+    end
 end
+
+% unzip the file
+fprintf('Unzipping AV_groundTruth file...\n');
+% unzip on output_folder/tmp
+unzip(zip_filename, fullfile(output_folder, 'tmp'));
 
 %% generate the input data set
 
@@ -46,7 +54,6 @@ for subs_ = 1 : length(subsets)
     rite_dataset_folder = fullfile(output_folder, strcat('RITE-', current_set));
     mkdir(rite_dataset_folder);
     mkdir(fullfile(rite_dataset_folder, 'images'));
-    mkdir(fullfile(rite_dataset_folder, 'labels'));
     mkdir(fullfile(rite_dataset_folder, 'vessel-segmentations'));
     mkdir(fullfile(rite_dataset_folder, 'veins'));
     mkdir(fullfile(rite_dataset_folder, 'arteries'));
@@ -68,16 +75,8 @@ for subs_ = 1 : length(subsets)
         im_labels = imread(fullfile(input_folder_for_labels, labels_filenames{i}));
         
         % identify labels of arteries, veins and unknown regions
-        arteries = logical((im_labels(:,:,3) == 255) .* (im_labels(:,:,1) == 0));
-        veins = logical((im_labels(:,:,1) == 255) .* (im_labels(:,:,3) == 0));
-        unknown = logical((im_labels(:,:,2) == 255));
-        % prepare matrix of labels
-        labels = zeros(size(im_labels(:,:,1)));
-        labels(arteries) = 1;
-        labels(veins) = -1;
-        labels(unknown) = 2;
-        % save if as a mat file
-        save(fullfile(rite_dataset_folder, 'labels', strcat(labels_filenames{i}, '.mat')),'labels');
+        arteries = logical((im_labels(:,:,3) == 255));
+        veins = logical((im_labels(:,:,1) == 255));
 
         % identify veins and save
         imwrite(im_labels(:,:,3)==255, fullfile(rite_dataset_folder, 'veins', labels_filenames{i}));
