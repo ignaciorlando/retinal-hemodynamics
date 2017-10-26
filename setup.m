@@ -34,8 +34,7 @@ if exist(skeletonization_library, 'file') == 0
 end
 % compile the library
 disp('Compiling anaskel.cpp...');
-mex 'external/skeletonization/anaskel.cpp'
-clc
+mex 'external/skeletonization/anaskel.cpp' -outdir 'external/skeletonization/'
 
 
 % add main folders to path
