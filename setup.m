@@ -35,6 +35,7 @@ end
 % compile the library
 disp('Compiling anaskel.cpp...');
 mex 'external/skeletonization/anaskel.cpp'
+clc
 
 
 % add main folders to path
