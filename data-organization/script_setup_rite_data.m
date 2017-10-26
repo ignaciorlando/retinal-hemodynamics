@@ -74,16 +74,23 @@ for subs_ = 1 : length(subsets)
         % open label
         im_labels = imread(fullfile(input_folder_for_labels, labels_filenames{i}));
         
-        % identify labels of arteries, veins and unknown regions
-        arteries = logical((im_labels(:,:,3) == 255));
-        veins = logical((im_labels(:,:,1) == 255));
+        % identify labels of arteries, removing unknown portions of the
+        % vasculature
+        arteries = logical((im_labels(:,:,1) == 255) .* (im_labels(:,:,3) == 0));
+        arteries(im_labels(:,:,2)==255) = true;
+        arteries(sum(im_labels, 3) > 510) = false;
+        % identify labels of veins, removing unknown portions of the
+        % vasculature
+        veins = logical((im_labels(:,:,1) == 0) .* (im_labels(:,:,3) == 255));
+        veins(im_labels(:,:,2)==255) = true;
+        veins(sum(im_labels, 3) > 510) = false;
 
         % identify veins and save
-        imwrite(im_labels(:,:,3)==255, fullfile(rite_dataset_folder, 'veins', labels_filenames{i}));
+        imwrite(veins, fullfile(rite_dataset_folder, 'veins', labels_filenames{i}));
         % identify arteries and save
-        imwrite(im_labels(:,:,1)==255, fullfile(rite_dataset_folder, 'arteries', labels_filenames{i}));
+        imwrite(arteries, fullfile(rite_dataset_folder, 'arteries', labels_filenames{i}));
         % identify vessels and save
-        imwrite(sum(im_labels,3) > 0, fullfile(rite_dataset_folder, 'vessel-segmentations', labels_filenames{i}));
+        imwrite((veins + arteries) > 0, fullfile(rite_dataset_folder, 'vessel-segmentations', labels_filenames{i}));
 
     end
 
