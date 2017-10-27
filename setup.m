@@ -35,6 +35,8 @@ end
 % compile the library
 disp('Compiling anaskel.cpp...');
 mex 'external/skeletonization/anaskel.cpp' -outdir 'external/skeletonization/'
+disp('Compiling skeleton.cpp...');
+mex 'external/skeletonization/skeleton.cpp' -outdir 'external/skeletonization/'
 
 
 % add main folders to path
