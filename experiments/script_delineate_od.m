@@ -73,7 +73,7 @@ for i = starting_image : length(image_filenames)
     final_od_roi(rect(2) : rect(2) + rect(4), rect(1) : rect(1) + rect(3), :) = od_roi;
     close all;
 
-    % save the image in the odmaskspath
-    imwrite(I, fullfile(od_masks_path, image_filenames{i}));
+    % save the final_od_roi
+    imwrite(final_od_roi, fullfile(od_masks_path, image_filenames{i}));
     
 end
