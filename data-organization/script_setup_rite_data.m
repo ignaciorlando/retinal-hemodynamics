@@ -68,8 +68,13 @@ for subs_ = 1 : length(subsets)
     % for each graph file
     for i = 1 : length(image_filenames)
 
-        % copy current image
-        copyfile(fullfile(input_folder_for_images, image_filenames{i}), fullfile(rite_dataset_folder, 'images', image_filenames{i}));
+        % open the image
+        img = imread(fullfile(input_folder_for_images, image_filenames{i}));
+        
+        % save the image
+        new_image_filename = image_filenames{i};
+        new_image_filename = strcat(new_image_filename(1:end-3), 'png');
+        imwrite(img, fullfile(rite_dataset_folder, 'images', new_image_filename));
         
         % open label
         im_labels = imread(fullfile(input_folder_for_labels, labels_filenames{i}));
