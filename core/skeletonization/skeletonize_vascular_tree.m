@@ -1,5 +1,5 @@
 
-function trees_ids = skeletonize_vascular_tree( vessel_segm, od_segm )
+function [trees_ids, root_pixels] = skeletonize_vascular_tree( vessel_segm, od_segm )
 %SKELETONIZE_VASCULAR_TREE Skeletonize the segm vascular tree
 
     % preprocess vessel segmentation
@@ -35,12 +35,11 @@ function trees_ids = skeletonize_vascular_tree( vessel_segm, od_segm )
     
     % identify the number of segments touching the od
     od_ring = od_segm - od_segm_eroded;
-    CC_od_ring = bwconncomp(od_ring .* skel);
-    n_segments_touching_od = CC_od_ring.NumObjects;
+    root_pixels = bwconncomp(od_ring .* skel);
+    n_segments_touching_od = root_pixels.NumObjects;
     
     % if the number of isolated segments is different than the number of
     % segments touching the od
-    figure, imagesc(trees_ids + od_ring);
     if n_isolated_segments < n_segments_touching_od
         disp('Deal with this');
     end

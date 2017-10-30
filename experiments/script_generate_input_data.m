@@ -41,14 +41,14 @@ for i = 1 : length(filenames)
     fprintf('Processing %s\n', current_filename);
     
     % process the segmentation to recover the skeleton with trees ids 
-    trees_ids = skeletonize_vascular_tree(arteries_segm, od_segm);
+    [trees_ids, root_pixels] = skeletonize_vascular_tree(arteries_segm, od_segm);
     % and process the skeletonization to recover the vessel radius
     trees_radius = estimate_vessel_radius(arteries_segm, trees_ids > 0);
-    % generate a graph from the tree
-    
+    % generate graph
+    graph = initialize_graph_from_skeleton(trees_ids, root_pixels);
 
     % save the mat file in the output folder
     save(fullfile(output_data_folder, strcat(current_filename(1:end-3), '.mat')), ...
-        'trees_ids');
+        'trees_ids', 'trees_radius', 'graph');
     
 end
