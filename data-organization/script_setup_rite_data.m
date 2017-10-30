@@ -57,6 +57,7 @@ for subs_ = 1 : length(subsets)
     mkdir(fullfile(rite_dataset_folder, 'vessel-segmentations'));
     mkdir(fullfile(rite_dataset_folder, 'veins'));
     mkdir(fullfile(rite_dataset_folder, 'arteries'));
+    mkdir(fullfile(rite_dataset_folder, 'original-labels'));
 
     % retrieve image names
     image_filenames = dir(fullfile(input_folder_for_images, '*.tif'));
@@ -78,7 +79,7 @@ for subs_ = 1 : length(subsets)
         
         % open label
         im_labels = imread(fullfile(input_folder_for_labels, labels_filenames{i}));
-        
+
         % identify labels of arteries, removing unknown portions of the
         % vasculature
         arteries = logical((im_labels(:,:,1) == 255) .* (im_labels(:,:,3) == 0));
@@ -96,7 +97,9 @@ for subs_ = 1 : length(subsets)
         imwrite(arteries, fullfile(rite_dataset_folder, 'arteries', labels_filenames{i}));
         % identify vessels and save
         imwrite((veins + arteries) > 0, fullfile(rite_dataset_folder, 'vessel-segmentations', labels_filenames{i}));
-
+        % write the original labels
+        imwrite(im_labels, fullfile(rite_dataset_folder, 'original-labels', labels_filenames{i}));
+        
     end
 
 end
