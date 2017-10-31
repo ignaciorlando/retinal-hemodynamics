@@ -48,7 +48,7 @@ for i = 1 : length(filenames)
     graph = initialize_graph_from_skeleton(trees_ids, root_pixels);
 
     % save the mat file in the output folder
-    save(fullfile(output_data_folder, strcat(current_filename(1:end-3), '.mat')), ...
+    save(fullfile(output_data_folder, strcat(current_filename(1:end-3), 'mat')), ...
         'trees_ids', 'trees_radius', 'graph');
     
 end

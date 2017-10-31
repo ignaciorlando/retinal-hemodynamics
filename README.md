@@ -64,6 +64,6 @@ This script allows you to compute the input data needed to perform the hemodynam
 
 ### Figure generation
 
-```displayGraph(graph, [image])```
+```display_graph(graph, [image])```
 
 Display a given ```graph```. If ```image``` is given, the graph is display over the input image.
