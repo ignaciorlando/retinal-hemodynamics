@@ -106,8 +106,6 @@ end
 
 %% move files from precomputed data to the data set
 
-subsets = {'training'}; % REMOVE THIS LINE
-
 for subs_ = 1 : length(subsets)
 
     rite_dataset_folder = fullfile(output_folder, strcat('RITE-', subsets{subs_}), 'od-masks');
