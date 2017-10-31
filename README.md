@@ -7,7 +7,7 @@ This code corresponds to our project on simulation of the retinal hemodynamics.
 
 1. Clone the repository using git.
 2. Open MATLAB and move to the root folder of the repository.
-3. Run ```setup```in the MATLAB console to add the folder to the path.
+3. Run ```setup``` in the MATLAB console to add the folder to the path.
 
 ## Data preparation
 
