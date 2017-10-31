@@ -17,10 +17,7 @@ We used publicly available data sets for running our experiments. In order to se
 
 ## Precomputed resources
 
-You can download precomputed resources from the following links:
-
-- Optic disc segmentations. [RITE training set](). [RITE test set]()
-- Arterial trees, radius and graphs. [RITE training set](). [RITE test set]().
+The folder ```./precomputed-data``` contains precomputed data such as manual optic disc segmentations.
 
 ## Data structures
 
