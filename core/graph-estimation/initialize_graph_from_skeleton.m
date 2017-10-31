@@ -13,7 +13,6 @@ function [Gout] = initialize_graph_from_skeleton(tree_ids, root_pixels)
         root_labels(root_pixels.PixelIdxList{i}) = unique(tree_ids(root_pixels.PixelIdxList{i}));
     end
     
-    
     % Generate only branching points
     branching_points = false(size(skel));
     branching_points(intersecting_pts) = true;
@@ -66,7 +65,7 @@ function [Gout] = initialize_graph_from_skeleton(tree_ids, root_pixels)
 
     node=[];
     link=[];
-    roots=zeros(length(unique(tree_ids(:))), 1);
+    roots=zeros(root_pixels.NumObjects, 1);
 
     tmp = false(w,l);
     tmp(branching_points) = 1; % true node pixels 
@@ -80,7 +79,7 @@ function [Gout] = initialize_graph_from_skeleton(tree_ids, root_pixels)
         node(i).links = [];
         node(i).conn = [];
         node(i).numLinks = 0;
-        node(i).is_root = unique(root_labels(cc2.PixelIdxList{i})) > 0;
+        node(i).is_root = max(root_labels(cc2.PixelIdxList{i})) > 0;
         node(i).tree_id = unique(tree_ids(cc2.PixelIdxList{i}));
         [x y] = ind2sub([w l],node(i).idx);
         % the node is assumed to be located at the average point of all pixels
@@ -89,12 +88,11 @@ function [Gout] = initialize_graph_from_skeleton(tree_ids, root_pixels)
         node(i).comy = mean(y);
         % add current variable to the list of roots
         if node(i).is_root
-            roots(unique(root_labels(cc2.PixelIdxList{i}))) = i;
+            roots(max(root_labels(cc2.PixelIdxList{i}))) = i;
         end
         % assign index to node pixels
         pixel_labels(node(i).idx) = i+1;
-    end;
-    
+    end
     
     % link iterator
     last_link_idx = 1;
