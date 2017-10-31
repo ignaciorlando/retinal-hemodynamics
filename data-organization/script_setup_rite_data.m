@@ -104,6 +104,24 @@ for subs_ = 1 : length(subsets)
 
 end
 
+%% move files from precomputed data to the data set
+
+subsets = {'training'}; % REMOVE THIS LINE
+
+for subs_ = 1 : length(subsets)
+
+    rite_dataset_folder = fullfile(output_folder, strcat('RITE-', subsets{subs_}), 'od-masks');
+    
+    % unzip the file
+    fprintf('Unzipping RITE-training optic disc mask file...\n');
+    % unzip on output_folder/tmp
+    unzip(fullfile(pwd, 'precomputed-data', strcat('RITE-', subsets{subs_}), 'od-masks.zip'), fullfile(output_folder, 'tmp', strcat('RITE-', subsets{subs_})));
+    % copy the folder
+    copyfile(fullfile(output_folder, 'tmp', strcat('RITE-', subsets{subs_}), 'od-masks'), ...
+        rite_dataset_folder)
+
+end
+
 %% delete tmp folder
 fprintf('Done!\n');
 rmdir(fullfile(output_folder, 'tmp'), 's');

@@ -15,6 +15,13 @@ We used publicly available data sets for running our experiments. In order to se
 
 - ```script_setup_rite_data```: downloads the [RITE dataset](https://medicine.uiowa.edu/eye/rite-dataset) and generates folders for arteries and veins.
 
+## Precomputed resources
+
+You can download precomputed resources from the following links:
+
+- Optic disc segmentations. [RITE training set](). [RITE test set]()
+- Arterial trees, radius and graphs. [RITE training set](). [RITE test set]().
+
 ## Data structures
 
 Arterial branches are mapped to an intermediate graph representation, which is obtained from the centerline of the arterial segmentation. This graph structure is a MATLAB ```struct``` with the following fields:
