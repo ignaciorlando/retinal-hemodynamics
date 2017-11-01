@@ -24,6 +24,8 @@ function [trees_ids, root_pixels] = skeletonize_vascular_tree( vessel_segm, od_s
     end
     % remove vessels inside the onh
     new_skel = new_skel .* imcomplement(od_segm_eroded);
+    % remove too short segments
+    new_skel = bwareaopen(new_skel, 5);
     
     % assign a first set of labels for each isolated segment
     CC = bwconncomp(new_skel);
@@ -35,7 +37,7 @@ function [trees_ids, root_pixels] = skeletonize_vascular_tree( vessel_segm, od_s
     
     % identify the number of segments touching the od
     od_ring = od_segm - od_segm_eroded;
-    root_pixels = bwconncomp(od_ring .* skel);
+    root_pixels = bwconncomp(od_ring .* new_skel);
     n_segments_touching_od = root_pixels.NumObjects;
     
     % if the number of isolated segments is different than the number of
