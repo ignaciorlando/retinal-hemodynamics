@@ -11,7 +11,7 @@ This code corresponds to our project on simulation of the retinal hemodynamics.
 
 ## Data preparation
 
-We used publicly available data sets for running our experiments. In order to set up the data in a proper way, you can use some of the scripts in the ```data-preparation``` folder.
+We used publicly available data sets for running our experiments. In order to set up the data in a proper way, you can use some of the scripts in the ```data-organization``` folder.
 
 - ```script_setup_rite_data```: downloads the [RITE dataset](https://medicine.uiowa.edu/eye/rite-dataset) and generates folders for arteries and veins.
 
@@ -67,3 +67,10 @@ This script allows you to compute the input data needed to perform the hemodynam
 ```display_graph(graph, [image])```
 
 Display a given ```graph```. If ```image``` is given, the graph is display over the input image.
+
+### VTK data generation
+
+```script_generate_input_data_vtk```
+
+This script allows you to export the skeletonizations generated with the ```script_generate_input_data``` script to VTK files.
+Sch files are the imput to the code that computes hemodynamics. The pixel spacing is hardcded in this script.
