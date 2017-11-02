@@ -4,3 +4,4 @@
 *.m~
 configuration/
 data/
+*.mexa64
