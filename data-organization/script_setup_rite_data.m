@@ -111,7 +111,7 @@ for subs_ = 1 : length(subsets)
     rite_dataset_folder = fullfile(output_folder, strcat('RITE-', subsets{subs_}), 'od-masks');
     
     % unzip the file
-    fprintf('Unzipping RITE-training optic disc mask file...\n');
+    fprintf('Unzipping RITE-%s optic disc mask file...\n', subsets{subs_});
     % unzip on output_folder/tmp
     unzip(fullfile(pwd, 'precomputed-data', strcat('RITE-', subsets{subs_}), 'od-masks.zip'), fullfile(output_folder, 'tmp', strcat('RITE-', subsets{subs_})));
     % copy the folder
