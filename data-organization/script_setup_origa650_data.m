@@ -76,3 +76,22 @@ for i = 1 : length(image_filenames)
     imwrite(resized_fov_mask, fullfile(origa_output_masks_folder, current_input_fov_name));
     
 end
+
+%% read the labels file
+
+% read the xlsx file
+[~, ~, raw] = xlsread(fullfile(origa_folder, 'labels.xlsx'));
+% remove the headers
+xlsx_file = raw(2:end, :);
+
+% encode the labels
+labels = cell2mat(xlsx_file(:,5)) == 1;
+% encode the filenames
+filenames = cell(size(labels));
+for i = 1 : size(xlsx_file, 1)
+    current_filename = xlsx_file{i, 2};
+    filenames{i} = strcat(current_filename(6:end-5), '.png');
+end
+
+% save the labels file
+save(fullfile(origa_output_folder, 'labels.mat'), 'labels', 'filenames');
