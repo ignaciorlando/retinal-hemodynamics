@@ -24,11 +24,8 @@ end
 
 % prepare images and masks folders
 origa_input_image_folder = fullfile(origa_folder, 'images');
+origa_input_optic_disc_folder = fullfile(origa_folder, 'manual marking');
 origa_output_image_folder = fullfile(origa_output_folder, 'images');
-origa_output_masks_folder = fullfile(origa_output_folder, 'masks');
-
-% move the masks from the precomputed-data folder to the masks folder
-copyfile(fullfile('precomputed-data', 'origa650', 'masks'), origa_output_masks_folder);
 
 %% crop the images around the FOV and resize
 
@@ -36,9 +33,9 @@ copyfile(fullfile('precomputed-data', 'origa650', 'masks'), origa_output_masks_f
 image_filenames = dir(fullfile(origa_input_image_folder, '*.jpg'));
 image_filenames = { image_filenames.name };
 
-% get fov mask filenames
-fov_mask_filenames = dir(fullfile(origa_output_masks_folder, '*.png'));
-fov_mask_filenames = { fov_mask_filenames.name };
+% get manual markings of the optic disc
+manual_markings_filenames = dir(fullfile(origa_input_optic_disc_folder, '*.mat'));
+manual_markings_filenames = { manual_markings_filenames.name };
 
 % create the output folder
 mkdir(origa_output_image_folder);
@@ -52,28 +49,23 @@ for i = 1 : length(image_filenames)
     % prepare input/output image filenames
     current_input_image_name = image_filenames{i};
     current_output_image_name = strcat(current_input_image_name(1:end-3), 'png');
-    % prepare input fov mask filename
-    current_input_fov_name = fov_mask_filenames{i};
     
     % open the image
     image = imread(fullfile(origa_input_image_folder, current_input_image_name));    
-    % open mask
-    fov_mask = imread(fullfile(origa_output_masks_folder, current_input_fov_name)) > 0;
+    % load the marking
+    load(fullfile(origa_input_optic_disc_folder, manual_markings_filenames{i}))
+    
+    % dilate the mask to capture part of the tissue around the optic disc
+    dilated_mask = imdilate(mask > 0, strel('disk', round(size(image, 1) * 0.05), 8));
     
     % crop the image
-    [ cropped_image, cropped_mask ] = crop_fov(image, fov_mask);
+    [ cropped_image, cropped_dilated_mask ] = crop_fov(image, dilated_mask);
     
-    % resize both of them to the required resolution
-    resized_image = zeros(224, 224, size(cropped_image, 3));
-    for j = 1 : size(cropped_image, 3)
-        resized_image(:,:,j) = imresize(cropped_image(:,:,j), [224, 224]);
-    end
-    resized_image = uint8(resized_image);
-    resized_fov_mask = imresize(cropped_mask, [224, 244], 'nearest') > 0;
+    % resize the image
+    resized_image = imresize(cropped_image, [224, NaN]);
     
     % save both the images and the fov mask
     imwrite(resized_image, fullfile(origa_output_image_folder, current_output_image_name));
-    imwrite(resized_fov_mask, fullfile(origa_output_masks_folder, current_input_fov_name));
     
 end
 
