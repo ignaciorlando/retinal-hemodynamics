@@ -1,5 +1,5 @@
 
-% SCRIPT_GENERATE_INPUT_DATA
+% SCRIPT_GENERATE_INPUT_DATA_VTK
 % -------------------------------------------------------------------------
 % This script generates the vtkPolyData representation for each input data 
 % .mat file.
@@ -10,8 +10,7 @@ config_generate_input_data;
 
 %% set up variables
 
-% TODO: Replace with the actual spacing and see how to paramtrize this
-% variable in the default configuration.
+% TODO: See how to paramtrize this variable in the default configuration.
 % The default Pixel Spacing
 pixelSpacing = [0.0025, 0.0025];
 
@@ -35,7 +34,10 @@ for i = 1 : length(filenames)
     load( fullfile(output_folder, strcat('/input_data/',current_filename)));
     % Generates the vtkPolyData from the graph and radius information
     % stored in the .mat file.
+    %display_graph(graph)
     [polydata, roots] = vtkPolyData( trees_radius, graph, pixelSpacing );
+    roots = polydata.Points(roots,:); 
+    save(fullfile(output_data_folder, strcat(current_filename(1:end-4), '_roots.mat')), 'roots');
     % Saves the vtkPolyData to ascii file
     vtkPolyDataWriter(polydata, fullfile(output_data_folder, strcat(current_filename(1:end-3), 'vtk')));    
     
