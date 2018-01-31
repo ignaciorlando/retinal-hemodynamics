@@ -24,7 +24,7 @@ mu   = 0.04;
 % The blood density, in [g / cm^3]. Only used if the stenosis model is employed.
 rho  = 1.05;
 % The central retinal artery pressure at the inlet, in [mmHg].
-P_in = [80.0, 75.0, 70.0]; 
+P_in = [57.22, 62.22, 65.22]; 
 % The reference pressure at the outlet, the venous pressure, in [mmHg].
 % This value is not used in the current set-up of boundary conditions,
 % since the flow is strongly imposed in the terminals.
@@ -68,9 +68,9 @@ for i = 1 : length(filenames)
             countSim = countSim + 1;
             
             % Store the solution of the outlets of the patient in an array
-            mask                 = sol(:,:,4);
+            mask                 = sol(:,:,end);
             [iOutlets, jOutlets] = find(mask==2);
-            solOutlets           = nan(numel(iOutlets),4);
+            solOutlets           = nan(numel(iOutlets),size(sol,3));
             for h = 1 : numel(iOutlets);
                 solOutlets(h,:) = sol(iOutlets(h), jOutlets(h),:);
             end;

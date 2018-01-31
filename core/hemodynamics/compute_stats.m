@@ -26,20 +26,19 @@ function [ stats ] = compute_stats( data, scenario, variable, coeff )
 % stats.min       The minimum value of the data.
 % stats.max       The maximum value of the data.
 % stats.median    The median of the data.
-% stats.quantiles The quantiles for [0, 0.25, 0.50, 0.75].
+% stats.quantiles The quantiles for [0.00 0.05 0.15 0.25 0.50 0.75 0.85 0.95].
 % stats.Data      The Data array used to compute statistics.
 %
 
 % Construct the array to be used for statistics.
 nSCol  = size(data{1},2);
 nSRow  = size(data{1},1);
-nVar   = size(data{1}{1},2);
 
 if (scenario(1)==0);
     scRIni = 1;
     scREnd = nSRow;
 else
-    scCIni = scenario(1);
+    scRIni = scenario(1);
     scREnd = scenario(1);
 end;
 
@@ -62,14 +61,6 @@ end;
 
 Data = Data*coeff(1) + coeff(2);
 
-stats.n         = numel(Data);
-stats.mean      = mean(Data);
-stats.std       = std(Data);
-stats.coefOfVar = abs(stats.std / stats.mean);
-stats.min       = min(Data);
-stats.max       = max(Data);
-stats.median    = median(Data);
-stats.quantiles = quantile(Data, [0, 0.25, 0.50, 0.75]);
-stats.Data      = Data;
+stats = statistics(Data);
 
 end

@@ -27,8 +27,8 @@ function [ sol, times ] = run_simulation( inputFile, roots, mu, rho, P_in, P_ref
 %
 % Retunrs:
 % sol:   The solution of the simulation, it is a marix of dimensions 
-% (imgSize(1),imgSize(2),4), contining at each skeleton pixel the radius, 
-% flow, pressure and a Mask with "nan" everywhere else. The mask indicates 
+% (imgSize(1),imgSize(2),5), contining at each skeleton pixel the radius, 
+% flow, pressure, blood velocity and a Mask with "nan" everywhere else. The mask indicates 
 % 0 for arterial segment, 1 for root, 2 for terminal and 3 for bifurcation 
 % point.
 % times: Array with the times took for running the steps 0 (data
@@ -142,7 +142,7 @@ times(2) = toc;
 tic
 % Reads the vtk containing the solution and generates the matrix with the
 % solution.
-sol = nan([imgSize,2]);
+sol = nan([imgSize,5]);
 
 movefile(strcat(outputFile,'_vasculature.vtk'), strcat(outputFile,'_sol.vtk'));
 fileStep2sol  = strcat(outputFile,'_sol.vtk');
@@ -167,13 +167,14 @@ for p = 1 : size(polydata.Points,1);
     sol(i,j,1) = RadiusArray(p);
     sol(i,j,2) = FlowArray(p);
     sol(i,j,3) = PressureArray(p);
-    sol(i,j,4) = 0;
+    sol(i,j,4) = FlowArray(p) ./ (pi * RadiusArray(p) .* RadiusArray(p));
+    sol(i,j,5) = 0;
 end;
 % Now set all the roots mask to one
 for r = 1 : size(roots, 1);
     i = round(roots(r,1) / spacing(1));
     j = round(roots(r,2) / spacing(2));
-    sol(i,j,4) = 1;
+    sol(i,j,5) = 1;
 end;
 % Now set all the terminal and bifurcation mask to two and three
 for ci = 1 : size(polydata.Cells,1);
@@ -189,9 +190,9 @@ for ci = 1 : size(polydata.Cells,1);
         end;
     end;
     if (isTerminal==1);
-        sol(i,j,4) = 2;
+        sol(i,j,5) = 2;
     else
-        sol(i,j,4) = 3;
+        sol(i,j,5) = 3;
     end;
 end;
 

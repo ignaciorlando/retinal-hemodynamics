@@ -1,4 +1,4 @@
-function [ vfai ] = vFAI( P0, P11, P12, Q1, Q2 )
+function [ vfai ] = vFAI( P0, P11, P12, Q1, Q2, QI )
 %VFAI Computes the virtual Functional Assessment Index (vFAI), see Papafaklis et al. (2014).
 % Defined as the area under the curve relating pressure ratio (P1/P0) to 
 % flow rate (Q). Which is estimated from the relation ∆P = fv Q + fs Q², 
@@ -8,14 +8,19 @@ function [ vfai ] = vFAI( P0, P11, P12, Q1, Q2 )
 %
 % Parameters:
 % P0: The proximal pressure value for each data sample. The index assume
-% that this value is the same for both simulations.
+% that this value is the same for both simulations. In [mmHg].
 % P11: The distal pressure value for each data sample for simulation 1.
+%      In [mmHg].
 % P12: The distal pressure value for each data sample for simulation 2.
+%      In [mmHg].
 % Q1:  Flow rate for each data sample for simulation 1. Smaller than Q2.
+%      In [cm^3/s].
 % Q2:  Flow rate for each data sample for simulation 2. Larger than Q1.
+%      In [cm^3/s].
 % QI:  The flow integration limits for all data samples, an array with two 
 %      values. If empty, then the limits of integration at each data sample
 %      will be the associated Q1 and Q2 values.
+%      In [cm^3/s].
 %
 % Return:
 % vfai: The vFAI value for each point in the input
@@ -35,7 +40,13 @@ function [ vfai ] = vFAI( P0, P11, P12, Q1, Q2 )
 %	date        = {2014-09} }
 %
 
-% Prepear he ,data
+% Constant to convert from mmHg to [dyn s/cm^2]
+mmHg2dynscm2 = 1333.22;
+P0  = P0  * mmHg2dynscm2;
+P11 = P11 * mmHg2dynscm2;
+P12 = P12 * mmHg2dynscm2;
+
+% Prepear the ,data
 n = numel(P0);
 vfai = nan(size(P0));
 dP1 = P0 - P11;
