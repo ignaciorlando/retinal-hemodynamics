@@ -24,7 +24,7 @@ function [ statsFP, statsFQ ] = sen_anal_classification( Sols, Q_in, P_in, idxVa
 % statsFQ: Statistics for fixed flow scenarios.
 %
 
-% Computes the mean of the pressure and velosities over all the scenarios
+% Computes the mean of the variable over all the scenarios
 stats_outlets_allSC = compute_stats( Sols, [0,0], idxVar, [1.,0.] );
 if (flagSubP);
     PDrops=[];
