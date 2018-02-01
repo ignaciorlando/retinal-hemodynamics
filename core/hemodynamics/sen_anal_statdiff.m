@@ -45,7 +45,7 @@ for scqi = 1 : numel(Q_in);
     for scpi = 1 : numel(P_in);
         for scqj = 1 : numel(Q_in);
             for scpj = 1 : numel(P_in);
-                UTests(scqi,scpi,scqj,scpj) = signrank(outlets{scqi,scpi,scqj,scpj},'tail','both','method','exact');
+                UTests(scqi,scpi,scqj,scpj) = signrank(outlets{scqi,scpi,scqj,scpj},0,'tail','both','method','exact');
             end;
         end;
     end;

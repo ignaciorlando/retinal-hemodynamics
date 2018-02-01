@@ -73,4 +73,27 @@ Display a given ```graph```. If ```image``` is given, the graph is display over 
 ```script_generate_input_data_vtk```
 
 This script allows you to export the skeletonizations generated with the ```script_generate_input_data``` script to VTK files.
-Sch files are the imput to the code that computes hemodynamics. The pixel spacing is hardcded in this script.
+Such files are the imput to the code that computes hemodynamics. The pixel spacing is hardcoded in this script.
+
+### Run hemodynamic simulations
+
+```script_run_simulation```
+
+This script allows you to run a set of scenarios defined by a total blood flow and ophthalmic pressures.
+It is mandatory to generate the VTK files ŕevious to run this script.
+The pixel spacing is hardcded in this script, and should match to the one used to generate the VTK files.
+The scripts reads data folders from ```config_generate_input_data```.
+The output is stered in the folder ```RITE-<test|training>/hemodynamic-simulation/```.
+For each scenario, a .VTK and a .mat files contaning the simulation results is generated.
+The file name follows the encoding: ```<ImageID>_<test|training>_SC<scenarioID>_sol.<mat|vtk>```.
+The .mat file contains a variable named ```sol```, which is a 3D matrix of dimensions [width,height,5]. 
+Matrix dimensions represents the radius (in [cm]), the flow (in [ml/s]), the pressure (in [mmHg]), the velocity (in [cm/s]) and
+a mask indicating if the centerline pixel is arterial segment (0), a root (1), a terminal (2) or a bifurcation (3).
+
+### Perform data analysis
+
+```script_hemodynamics_sensitivity_analysis```
+
+This script allows you to exploratory data analysis and statistics on the hemodynamics simulations results.
+UNDER DEVELOPMENT!
+
