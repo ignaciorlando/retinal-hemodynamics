@@ -80,11 +80,11 @@ Such files are the imput to the code that computes hemodynamics. The pixel spaci
 ```script_run_simulation```
 
 This script allows you to run a set of scenarios defined by a total blood flow and ophthalmic pressures.
-It is mandatory to generate the VTK files ŕevious to run this script.
-The pixel spacing is hardcded in this script, and should match to the one used to generate the VTK files.
+It is mandatory to generate the VTK files before running this script.
+The pixel spacing is hardcoded in this script, and should match the one used to generate the VTK files.
 The scripts reads data folders from ```config_generate_input_data```.
-The output is stered in the folder ```RITE-<test|training>/hemodynamic-simulation/```.
-For each scenario, a .VTK and a .mat files contaning the simulation results is generated.
+The output is stored in the folder ```RITE-<test|training>/hemodynamic-simulation/```.
+For each scenario, a .VTK and a .mat files contaning the simulation results are generated.
 The file name follows the encoding: ```<ImageID>_<test|training>_SC<scenarioID>_sol.<mat|vtk>```.
 The .mat file contains a variable named ```sol```, which is a 3D matrix of dimensions [width,height,5]. 
 Matrix dimensions represents the radius (in [cm]), the flow (in [ml/s]), the pressure (in [mmHg]), the velocity (in [cm/s]) and
