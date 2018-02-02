@@ -6,13 +6,19 @@
 % -------------------------------------------------------------------------
 
 % Configurate the script
-config_generate_input_data;
+config_generate_input_data_vtk;
 
 %% set up variables
 
-% TODO: See how to paramtrize this variable in the default configuration.
-% The default Pixel Spacing
-pixelSpacing = [0.0025, 0.0025];
+% input folder
+input_folder = fullfile(input_folder, database);
+% output folder
+output_folder = fullfile(output_folder, database);
+
+if exist('pixelSpacing', 'var') == 0
+    warning('Pixel spacing undefined. Using default values:')
+    pixelSpacing = [0.0025, 0.0025];
+end
 
 % prepare output data folder
 output_data_folder = fullfile(output_folder, '/input_data/vtk');
