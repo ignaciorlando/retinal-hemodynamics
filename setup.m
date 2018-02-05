@@ -56,7 +56,7 @@ if exist(cnn_finetuning_library, 'dir') == 0
 else
     addpath(genpath(fullfile(pwd, cnn_finetuning_library))) ;
     cd(cnn_finetuning_library)
-    setup_cnn_finetuning
+    setup_cnn_finetuning(true)
     cd ..
     cd ..
     fprintf('Successful configuration. Ready to work.\n');
