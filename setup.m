@@ -54,7 +54,10 @@ cnn_finetuning_library = fullfile('external', 'cnn-finetune');
 if exist(cnn_finetuning_library, 'dir') == 0
     warning('It seems that the cnn-finetune library has not been added yet to the repository. Please, run this command in a Git terminal: git submodule update --recursive');
 else
-    addpath(genpath(fullfile(my_root_position, cnn_finetuning_library))) ;
+    addpath(genpath(fullfile(pwd, cnn_finetuning_library))) ;
+    cd(cnn_finetuning_library)
     setup_cnn_finetuning
+    cd ..
+    cd ..
     fprintf('Successful configuration. Ready to work.\n');
 end
