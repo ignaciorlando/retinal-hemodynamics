@@ -38,7 +38,6 @@ mex 'external/skeletonization/anaskel.cpp' -outdir 'external/skeletonization/'
 disp('Compiling skeleton.cpp...');
 mex 'external/skeletonization/skeleton.cpp' -outdir 'external/skeletonization/'
 
-
 % add main folders to path
 addpath(genpath(fullfile(my_root_position, 'data-organization'))) ;
 addpath(genpath(fullfile(my_root_position, 'fundus-util'))) ;
@@ -50,4 +49,12 @@ addpath(genpath(fullfile(my_root_position, 'external'))) ;
 clear
 clc
 
-fprintf('Successful configuration. Ready to work.\n');
+% CNN fine tuning
+cnn_finetuning_library = fullfile('external', 'cnn-finetune');
+if exist(cnn_finetuning_library, 'dir') == 0
+    warning('It seems that the cnn-finetune library has not been added yet to the repository. Please, run this command in a Git terminal: git submodule update --recursive');
+else
+    addpath(genpath(fullfile(my_root_position, cnn_finetuning_library))) ;
+    setup_cnn_finetuning
+    fprintf('Successful configuration. Ready to work.\n');
+end
