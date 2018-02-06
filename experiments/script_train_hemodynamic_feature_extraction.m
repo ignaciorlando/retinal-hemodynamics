@@ -30,7 +30,7 @@ centroids = centroids(:, 1:end-1);
 %% save the output
 
 % prepare filename
-output_filename = strcat('feature_extraction_k=', num2str(k), '.mat');
+output_filename = strcat('centroids_k=', num2str(k), '_trained-on-', database, '_', scenario, '.mat');
 
 % save the file
 if exist(output_folder, 'dir')==0

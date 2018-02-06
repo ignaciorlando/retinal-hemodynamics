@@ -8,8 +8,11 @@
 % number of centroids to learn for each of the classes
 k = 10;
 
+% training database
+database = 'RITE-training';
+
 % folder where the training data is stored
-root_folder = fullfile(pwd, 'data', 'RITE-training');
+root_folder = fullfile(pwd, 'data', database);
 
 % output folder
 output_folder = fullfile(pwd, 'feature-extraction-models');
