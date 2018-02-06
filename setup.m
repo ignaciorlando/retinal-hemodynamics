@@ -44,7 +44,9 @@ addpath(genpath(fullfile(my_root_position, 'fundus-util'))) ;
 addpath(genpath(fullfile(my_root_position, 'configuration'))) ;
 addpath(genpath(fullfile(my_root_position, 'core'))) ;
 addpath(genpath(fullfile(my_root_position, 'experiments'))) ;
-addpath(genpath(fullfile(my_root_position, 'external'))) ;
+% add each external folder carefully
+addpath(genpath(fullfile(my_root_position, 'external', 'hemodynamics-solver'))) ;
+addpath(genpath(fullfile(my_root_position, 'external', 'skeletonization'))) ;
 
 clear
 clc
@@ -54,7 +56,7 @@ cnn_finetuning_library = fullfile('external', 'cnn-finetune');
 if exist(cnn_finetuning_library, 'dir') == 0
     warning('It seems that the cnn-finetune library has not been added yet to the repository. Please, run this command in a Git terminal: git submodule update --recursive');
 else
-    addpath(genpath(fullfile(pwd, cnn_finetuning_library))) ;
+    addpath(cnn_finetuning_library);
     cd(cnn_finetuning_library)
     setup_cnn_finetuning(true)
     cd ..
