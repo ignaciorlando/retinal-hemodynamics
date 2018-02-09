@@ -5,3 +5,7 @@
 configuration/
 data/
 *.mexa64
+cnn-models/
+classifiers/
+results/
+feature-extractor-models/
