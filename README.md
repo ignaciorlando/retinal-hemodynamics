@@ -7,8 +7,9 @@ This code corresponds to our project on simulation of the retinal hemodynamics.
 
 1. Clone the repository doing ```git clone https://github.com/ignaciorlando/retinal-hemodynamics.git```.
 2. Run ```git submodule update --recursive```
-3. Open MATLAB and move to the root folder of the repository.
-4. Run ```setup``` in the MATLAB console to add the folder to the path.
+3. Move to ```external/cnn-finetune/dependencies```  and run ```git submodule update --init```
+4. Open MATLAB and move to the root folder of the repository.
+5. Run ```setup``` in the MATLAB console to add the folder to the path.
 
 > --- **Note** --- If you get an error when compiling Matconvnet, it might be that you don't have libdevjpeg installed in your computer. Run ```sudo apt-get install libjpeg-dev```.
 
