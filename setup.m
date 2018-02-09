@@ -48,6 +48,14 @@ addpath(genpath(fullfile(my_root_position, 'experiments'))) ;
 addpath(genpath(fullfile(my_root_position, 'external', 'hemodynamics-solver'))) ;
 addpath(genpath(fullfile(my_root_position, 'external', 'skeletonization'))) ;
 
+% compile the random forest classifier
+random_forest_path = fullfile('external', 'RF_Class_C');
+addpath(random_forest_path)
+cd(random_forest_path)
+compile_random_forest()
+cd ..
+cd ..
+
 clear
 clc
 
