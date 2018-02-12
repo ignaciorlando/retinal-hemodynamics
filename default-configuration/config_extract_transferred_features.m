@@ -17,5 +17,6 @@ root_folder = fullfile(pwd, 'data', database);
 % cnn filename (full path to the deployed network)
 cnn_filename = fullfile(pwd, 'cnn-models', 'net-deployed.mat');
 
-% output feature path
-output_path = fullfile(root_folder, 'transferred-features');
+% output paths
+output_path_features = fullfile(root_folder, 'transferred-features');
+output_path_probabilities = fullfile(pwd, 'results', database);
