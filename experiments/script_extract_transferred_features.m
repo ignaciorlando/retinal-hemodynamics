@@ -25,6 +25,7 @@ image_filenames = {image_filenames.name};
 if exist(output_path_features, 'dir')==0
     mkdir(output_path_features);
 end
+output_path_probabilities = fullfile(output_path_probabilities, 'cnn');
 if exist(output_path_probabilities, 'dir')==0
     mkdir(output_path_probabilities);
 end
