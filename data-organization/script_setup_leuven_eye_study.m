@@ -69,12 +69,18 @@ end
 %% read the labels file
 
 % read the xlsx file
-[~,txt,~] = xlsread(fullfile(leuven_eye_study_folder, 'Data.xlsx'));
+[num,txt,~] = xlsread(fullfile(leuven_eye_study_folder, 'Data.xlsx'));
 % remove the headers
-xlsx_file = txt(2:end, 1);
+image_num = num(:,1);
+diagnosis = txt(2:end, 1);
 
 % encode the labels
-labels = ~strcmp(xlsx_file, 'normal');
+binary_labels = ~strcmp(diagnosis, 'normal');
+labels = zeros(size(binary_labels));
+for i = 1 : length(image_filenames)
+    current_image_filename = image_filenames{i};
+    labels(i) = binary_labels(str2double(current_image_filename(1:end-4)) == image_num);
+end
 
 % save the labels file
 save(fullfile(leuven_eye_study_folder, 'labels.mat'), 'labels');
