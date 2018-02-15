@@ -9,11 +9,21 @@ config_extract_transferred_features
 
 %% prepare input variables
 
-% load the centroids
-cnn = load(cnn_filename);
+% get the image source name
+switch image_source
+    case 'optic-disc'
+        image_source = 'images-onh';
+    case 'full-image'
+        image_source = 'images-fov';
+    case 'full-image-without-onh'
+        image_source = 'images-fov-wo-onh';
+end
 
 % update root_folder to include images-cropped
-root_folder = fullfile(root_folder, 'images-cropped');
+root_folder = fullfile(root_folder, image_source);
+
+% load the CNN
+cnn = load(fullfile(cnn_path, image_source, 'net-deployed.mat'));
 
 % retrieve the image names
 image_filenames = dir(fullfile(root_folder, '*.png'));
