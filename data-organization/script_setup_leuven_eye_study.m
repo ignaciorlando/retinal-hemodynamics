@@ -22,7 +22,10 @@ end
 % prepare images and masks folders
 leuven_eye_study_input_image_folder = fullfile(leuven_eye_study_folder, 'images');
 leuven_eye_study_input_optic_disc_folder = fullfile(leuven_eye_study_folder, 'od-masks');
-leuven_eye_study_output_image_folder = fullfile(leuven_eye_study_folder, 'images-cropped');
+leuven_eye_study_output_image_folder = fullfile(leuven_eye_study_folder, 'images');
+leuven_eye_study_output_image_onh_folder = fullfile(leuven_eye_study_folder, 'images-onh');
+leuven_eye_study_output_image_fov_folder = fullfile(leuven_eye_study_folder, 'images-fov');
+leuven_eye_study_output_image_fov_wo_onh_folder = fullfile(leuven_eye_study_folder, 'images-fov-wo-onh');
 
 %% crop the images around the FOV and resize
 
@@ -36,6 +39,9 @@ manual_markings_filenames = { manual_markings_filenames.name };
 
 % create the output folder
 mkdir(leuven_eye_study_output_image_folder);
+mkdir(leuven_eye_study_output_image_onh_folder);
+mkdir(leuven_eye_study_output_image_fov_folder);
+mkdir(leuven_eye_study_output_image_fov_wo_onh_folder);
 
 % iterate for each image
 fprintf('Cropping and resizing images...\n');
@@ -47,22 +53,45 @@ for i = 1 : length(image_filenames)
     current_input_image_name = image_filenames{i};
     current_output_image_name = strcat(current_input_image_name(1:end-3), 'png');
     
+    % prepare the image as it is
+    
     % open the image
     image = imread(fullfile(leuven_eye_study_input_image_folder, current_input_image_name));    
-    % load the marking
-    mask = imread(fullfile(leuven_eye_study_input_optic_disc_folder, manual_markings_filenames{i}));    
+    % save the image
+    imwrite(image, fullfile(leuven_eye_study_output_image_folder, current_input_image_name));
     
-    % dilate the mask to capture part of the tissue around the optic disc
-    dilated_mask = imdilate(mask > 0, strel('disk', round(size(image, 1) * 0.05), 8));
-    
+    % prepare the image cropped around the FOV
+    fov_mask = get_fov_mask(image, 0.001);
     % crop the image
-    [ cropped_image, cropped_dilated_mask ] = crop_fov(image, dilated_mask);
+    cropped_image_fov = crop_fov(image, fov_mask); 
+    % resize the image
+    resized_image = imresize(cropped_image_fov, [224, NaN]);
+    % save 
+    imwrite(resized_image, fullfile(leuven_eye_study_output_image_fov_folder, current_input_image_name));
     
+    % prepare the image cropped around the OD
+    
+    % load the OD mask
+    od_mask = imread(fullfile(leuven_eye_study_input_optic_disc_folder, manual_markings_filenames{i}));    
+    % dilate the mask to capture part of the tissue around the optic disc
+    dilated_mask = imdilate(od_mask > 0, strel('disk', round(size(image, 1) * 0.05), 8));
+    % crop the image
+    [ cropped_image, cropped_dilated_mask ] = crop_fov(image, dilated_mask);    
     % resize the image
     resized_image = imresize(cropped_image, [224, NaN]);
+    % save 
+    imwrite(resized_image, fullfile(leuven_eye_study_output_image_onh_folder, current_input_image_name));
     
-    % save both the images and the fov mask
-    imwrite(resized_image, fullfile(leuven_eye_study_output_image_folder, current_output_image_name));
+    % prepare the image cropped around the FOV and without the OD
+    
+    % crop the od mask around the fov mask
+    mask = crop_fov(od_mask, fov_mask);
+    % remove the optic disc
+    image_without_onh = uint8(double(cropped_image_fov) .* double(imcomplement(mask > 0)));
+    % resize the image
+    resized_image = imresize(image_without_onh, [224, NaN]);
+    % save 
+    imwrite(resized_image, fullfile(leuven_eye_study_output_image_fov_wo_onh_folder, current_input_image_name));
     
 end
 
