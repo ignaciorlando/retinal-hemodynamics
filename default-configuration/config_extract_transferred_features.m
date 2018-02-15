@@ -11,11 +11,16 @@
 %database = 'RITE-test';
 database = 'LeuvenEyeStudy';
 
+% image source
+%image_source = 'optic-disc';
+%image_source = 'full-image';
+image_source = 'full-image-without-onh';
+
 % folder where the data is stored
 root_folder = fullfile(pwd, 'data', database);
 
-% cnn filename (full path to the deployed network)
-cnn_filename = fullfile(pwd, 'cnn-models', 'net-deployed.mat');
+% cnn path
+cnn_path = fullfile(pwd, 'cnn-models');
 
 % output paths
 output_path_features = fullfile(root_folder, 'transferred-features');

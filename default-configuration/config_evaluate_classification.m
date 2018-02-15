@@ -17,6 +17,11 @@ results_path = fullfile(pwd, 'results', database);
 % classifier
 classifier = 'cnn';
 
+% image source
+%image_source = 'optic-disc';
+%image_source = 'full-image';
+image_source = 'full-image-without-onh';
+
 % features
 % (if classifier is cnn, this value will be ignored)
 features = 'transferred-features';

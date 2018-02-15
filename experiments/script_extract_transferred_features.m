@@ -19,8 +19,11 @@ switch image_source
         image_source = 'images-fov-wo-onh';
 end
 
-% update root_folder to include images-cropped
+% update root_folder to include image source
 root_folder = fullfile(root_folder, image_source);
+% update output folders to include image source
+output_path_features = strcat(output_path_features, '-', image_source);
+output_path_probabilities = fullfile(output_path_probabilities, strcat('cnn-', image_source));
 
 % load the CNN
 cnn = load(fullfile(cnn_path, image_source, 'net-deployed.mat'));
@@ -35,7 +38,6 @@ image_filenames = {image_filenames.name};
 if exist(output_path_features, 'dir')==0
     mkdir(output_path_features);
 end
-output_path_probabilities = fullfile(output_path_probabilities, 'cnn');
 if exist(output_path_probabilities, 'dir')==0
     mkdir(output_path_probabilities);
 end
