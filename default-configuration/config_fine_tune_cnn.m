@@ -8,8 +8,8 @@
 output_dir = fullfile(pwd, 'cnn-models');
 
 % Type of images that will be used in the experiment
-image_source = 'optic-disc';
-%image_source = 'full-image'
+%image_source = 'optic-disc';
+image_source = 'full-image'
 %image_source = 'full-image-without-onh'
 
 % Number of epochs for fine tuning
