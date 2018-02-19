@@ -13,9 +13,16 @@ my_root_position = pwd;
 if exist('configuration', 'file')==0
     % Create folder
     mkdir('configuration');
-    % Copy default configuration files
-    copyfile('default-configuration', 'configuration');
 end
+config_filenames = dir(fullfile('default-configuration', '*.m'));
+config_filenames = { config_filenames.name };
+for i = 1 : length(config_filenames)
+    if exist(fullfile('configuration', config_filenames{i}), 'file')==0
+        % Copy the default configuration file
+        copyfile(fullfile('default-configuration', config_filenames{i}), fullfile('configuration', config_filenames{i}));
+    end
+end
+    
 
 % Install external libraries
 if exist('external', 'file')==0
