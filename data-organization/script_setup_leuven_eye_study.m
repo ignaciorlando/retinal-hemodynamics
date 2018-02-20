@@ -9,14 +9,27 @@
 % set up main variables
 config_setup_leuven_eye_study;
 
+%% unzip the file
+
+zip_filename = fullfile(input_folder, 'LeuvenEyeStudy.zip');
+
+if exist(zip_filename, 'file') == 0
+    error('Couldnt find the file LeuvenEyeStudy.zip. Please, download it and put it in input_folder.');
+else
+    % unzip the file
+    fprintf('Unzipping LeuvenEyeStudy file...\n');
+    % unzip on output_folder/tmp
+    unzip(zip_filename, fullfile(output_folder));
+end
+
 %% prepare the input data set and the output folders
 
 % prepare input folder
-leuven_eye_study_folder = fullfile(input_folder, 'LeuvenEyeStudy');
+leuven_eye_study_folder = fullfile(output_folder, 'LeuvenEyeStudy');
 
 % check if the file exists
 if exist(leuven_eye_study_folder, 'file') == 0
-    error('Make sure that you have already copied the files of the Leuven Eye Study.');
+    error('Houston, we have a problem!');
 end
 
 % prepare images and masks folders

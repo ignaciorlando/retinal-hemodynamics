@@ -6,4 +6,7 @@
 % -------------------------------------------------------------------------
 
 % input folder
-input_folder = fullfile(pwd, 'data');
+input_folder = '/home/ignaciorlando/Downloads/';
+
+% output folder
+output_folder = fullfile(pwd, 'data');
