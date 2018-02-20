@@ -103,7 +103,10 @@ for i = 1 : length(image_filenames)
     % crop the od mask around the fov mask
     mask = crop_fov(od_mask, fov_mask);
     % remove the optic disc
-    image_without_onh = uint8(double(cropped_image_fov) .* double(imcomplement(mask > 0)));
+    image_without_onh = cropped_image_fov;
+    for j = 1 : size(cropped_image_fov, 3)
+        image_without_onh(:,:,j) = uint8(double(cropped_image_fov(:,:,j)) .* double(imcomplement(mask > 0)));
+    end
     % resize the image
     resized_image = imresize(image_without_onh, [224, NaN]);
     % save 
