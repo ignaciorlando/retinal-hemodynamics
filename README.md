@@ -15,9 +15,15 @@ This code corresponds to our project on simulation of the retinal hemodynamics.
 
 ## Data preparation
 
-We used publicly available data sets for running our experiments. In order to set up the data in a proper way, you can use some of the scripts in the ```data-organization``` folder.
+We used some publicly available data sets for our experiments. In order to set up the data in a proper way, you can use some of the scripts in the ```data-organization``` folder.
 
 - ```script_setup_rite_data```: downloads the [RITE dataset](https://medicine.uiowa.edu/eye/rite-dataset) and generates folders for arteries and veins.
+- ```script_setup_origa650_data```: preprocess the images in the ORIGA650 database for fine-tuning the CNN.
+
+We have also introduced a new database, namely Leuven Eye Study, comprising 22 fundus pictures with vessel annotations and labels for arteries and veins.
+We are working on the release right now!
+
+- ```script_setup_leuven_eye_study```: organizes the data of the Leuven Eye Study for our experiments.
 
 ## Precomputed resources
 
