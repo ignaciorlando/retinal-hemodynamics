@@ -40,6 +40,9 @@ leuven_eye_study_output_image_onh_folder = fullfile(leuven_eye_study_folder, 'im
 leuven_eye_study_output_image_fov_folder = fullfile(leuven_eye_study_folder, 'images-fov');
 leuven_eye_study_output_image_fov_wo_onh_folder = fullfile(leuven_eye_study_folder, 'images-fov-wo-onh');
 
+% copy the od-masks from the precomputed data
+copyfile(fullfile('precomputed-data', 'LeuvenEyeStudy'), fullfile(leuven_eye_study_folder));
+
 %% crop the images around the FOV and resize
 
 % get image filenames

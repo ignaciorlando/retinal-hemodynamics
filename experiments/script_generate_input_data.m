@@ -46,7 +46,7 @@ for i = 1 : length(filenames)
     trees_radius = estimate_vessel_radius(arteries_segm, trees_ids > 0);
     % generate graph
     graph = initialize_graph_from_skeleton(trees_ids, root_pixels);
-
+    
     % save the mat file in the output folder
     save(fullfile(output_data_folder, strcat(current_filename(1:end-3), 'mat')), ...
         'trees_ids', 'trees_radius', 'graph');
