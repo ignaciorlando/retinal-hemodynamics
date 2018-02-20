@@ -24,9 +24,6 @@ feature_map_filenames = {feature_map_filenames.name};
 % get the centroids
 centroids = get_hemodynamic_centroids( root_folder, feature_map_filenames, labels, k );
 
-% ignore the last columns
-centroids = centroids(:, 1:end-1);
-
 %% save the output
 
 % prepare filename
