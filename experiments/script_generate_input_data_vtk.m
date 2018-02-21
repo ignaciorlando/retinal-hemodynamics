@@ -16,8 +16,8 @@ input_folder = fullfile(input_folder, database);
 output_folder = fullfile(output_folder, database);
 
 if exist('pixelSpacing', 'var') == 0
-    warning('Pixel spacing undefined. Using default values:')
     pixelSpacing = [0.0025, 0.0025];
+    warning(strcat('Pixel spacing undefined. Using default values:',num2str(pixelSpacing)))    
 end
 
 % prepare output data folder

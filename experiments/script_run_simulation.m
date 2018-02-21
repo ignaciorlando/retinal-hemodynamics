@@ -6,14 +6,14 @@
 
 clc
 
-% Configurate the script
-config_generate_input_data;
+% Configurate the script, the script should contain the pixel spacing and image size
+config_generate_input_data_vtk;
+% input folder
+input_folder = fullfile(input_folder, database);
+% output folder
+output_folder = fullfile(output_folder, database);
 
 %% set up variables
-
-% TODO: See how to paramtrize this variable in the default configuration.
-pixelSpacing = [0.0025, 0.0025];
-imgSize      = [565, 584];
 
 % Parameters for the hemodynamic simulations. -----------------------------
 % The blood viscocity, in [dyn s /cm^2].
@@ -24,7 +24,8 @@ mu   = 0.04;
 % The blood density, in [g / cm^3]. Only used if the stenosis model is employed.
 rho  = 1.05;
 % The central retinal artery pressure at the inlet, in [mmHg].
-P_in = [57.22, 62.22, 65.22]; 
+% P_in = [57.22, 62.22, 65.22]; 
+P_in = [62.22]; 
 % The reference pressure at the outlet, the venous pressure, in [mmHg].
 % This value is not used in the current set-up of boundary conditions,
 % since the flow is strongly imposed in the terminals.
@@ -32,9 +33,12 @@ P_ref = 30.0;
 % List of total inflows to be used, in [cm^3 / s]
 % The values in the paper and the literature are reported in [µl/min], then
 % we converted to [cm^3 / s]
-Q_in = [30.0, 40.8, 45.6, 52.9, 80.0] * (1./60.) * 0.001;
+% Q_in = [30.0, 40.8, 45.6, 52.9, 80.0] * (1./60.) * 0.001;
+Q_in = [30.0, 45.6, 80.0] * (1./60.) * 0.001;
 % Murray exponent
 mExp = 2.66;
+%The resistance model to be used, can be Poiseuille or PoiseuilleTapering
+rModel = 'Poiseuille';
 
 % prepare output data folder
 output_data_folder = fullfile(output_folder, '/hemodynamic-simulation');
@@ -64,7 +68,7 @@ for i = 1 : length(filenames)
         % Loop over all inlet pressures
         for k = 1 : numel(P_in);
             output_filename = fullfile(output_data_folder, strcat(filenames{i}(1:end-4),'_SC',num2str(countSim)));
-            [sol, time] = run_simulation( current_filename, roots, mu, rho, P_in(k), P_ref, Q_in(j), mExp, output_filename, imgSize, pixelSpacing );
+            [sol, time] = run_simulation( current_filename, roots, mu, rho, P_in(k), P_ref, Q_in(j), mExp, rModel, output_filename, imgSize, pixelSpacing );
             countSim = countSim + 1;
             
             % Store the solution of the outlets of the patient in an array

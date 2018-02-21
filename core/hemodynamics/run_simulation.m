@@ -1,4 +1,4 @@
-function [ sol, times ] = run_simulation( inputFile, roots, mu, rho, P_in, P_ref, Q_in, mExp, outputFile, imgSize, spacing )
+function [ sol, times ] = run_simulation( inputFile, roots, mu, rho, P_in, P_ref, Q_in, mExp, rModel, outputFile, imgSize, spacing )
 %RUN_SIMULATION Given an input vtk file and a set of parameters, perform an
 % hemodynamics simulations and export the result to a .mat file in a matrix
 % forma.
@@ -16,6 +16,8 @@ function [ sol, times ] = run_simulation( inputFile, roots, mu, rho, P_in, P_ref
 % Q_in:    Total inflow at the root(s) of the arterial tree, in [cm^3 / s].
 % mExp:    The Murray exponent to be used in the calculus of terminal
 %          resistances. Adimensional parameter.
+% rModel:  The resistance model to be used, can be 'Poiseuille' or 
+%          'PoiseuilleTapering'.
 % outFile: The file name (with full path) to the .mat file to be created
 %          with the solution.
 % imgSize: Array containing the x and y sizes of the resulting image. Note
@@ -120,6 +122,8 @@ fprintf(fid, 'useYoungModel = false;\n');
 % 5: inletPressure_outletResistanceMurrayMeanDistalRadius
 %    but the flow is enforced in an strong way.
 fprintf(fid, 'BCMethodology = 5;\n');
+% The resistance model to be used, can be Poiseuille or PoiseuilleTapering.
+fprintf(fid, strcat('ResistanceModel = "', rModel,'";\n'));
 % This parameter reprecent a percentage (range [0,100]) of the arterial length
 % from the end point. This arterial segment will be used to compute an equivalent
 % radius for the boundary condition computation.
