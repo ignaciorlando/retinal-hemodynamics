@@ -28,4 +28,4 @@ if exist(output_path, 'dir')==0
 end
 
 % extract the hemodynamic features and save them
-extract_bag_of_hemodynamic_features( root_folder, feature_map_filenames, centroids, output_path );
+features = extract_bag_of_hemodynamic_features( root_folder, feature_map_filenames, centroids, output_path, true );
