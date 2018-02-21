@@ -16,7 +16,7 @@ input_folder = fullfile(input_folder, database);
 output_folder = fullfile(output_folder, database);
 
 if exist('pixelSpacing', 'var') == 0
-    pixelSpacing = [0.0025, 0.0025];
+    pixelSpacing = [ones(40,1)*0.0025, ones(40,1)*0.0025];;
     warning(strcat('Pixel spacing undefined. Using default values:',num2str(pixelSpacing)))    
 end
 
@@ -41,7 +41,7 @@ for i = 1 : length(filenames)
     % Generates the vtkPolyData from the graph and radius information
     % stored in the .mat file.
     %display_graph(graph)
-    [polydata, roots] = vtkPolyData( trees_radius, graph, pixelSpacing );
+    [polydata, roots] = vtkPolyData( trees_radius, graph, pixelSpacing(i,:) );
     roots = polydata.Points(roots,:); 
     save(fullfile(output_data_folder, strcat(current_filename(1:end-4), '_roots.mat')), 'roots');
     % Saves the vtkPolyData to ascii file
