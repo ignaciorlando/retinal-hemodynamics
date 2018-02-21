@@ -162,6 +162,59 @@ function [Gout] = initialize_graph_from_skeleton(tree_ids, root_pixels)
     Gout.l = l;
     Gout.roots = roots;
     
+    % correct wrong links
+    Gout = verify_links(Gout);
+    
+end
+
+
+
+function Gin = verify_links(Gin)
+% verify_links run a DFS over each tree to verify if the links are in a
+% correct order.
+
+    % repeat this for each root
+    for r = 1 : length(Gin.roots)
+        % traverse each arterial tree correcting the links
+        visited_nodes = [];
+        [Gin, ~] = visit_node(Gin, Gin.roots(r), visited_nodes);
+    end
+
+end
+
+
+
+function [Gin, visited_nodes] = visit_node(Gin, node, visited_nodes)
+
+    % correct each link
+    for l = 1 : length(Gin.node(node).links)
+        current_link = Gin.link(Gin.node(node).links(l));
+        % link pointing from terminal to current node must be the other
+        % way
+        if current_link.n1 == -1
+            current_link.n1 = current_link.n2;
+            current_link.n2 = -1;
+        % link pointing from current node to another visited node
+        % should be the other way
+        elseif (current_link.n1 == node) && (current_link.n2 ~= -1) && ismember(current_link.n2, visited_nodes)
+            current_link.n1 = current_link.n2;
+            current_link.n2 = node;
+        end
+        % update the link in the graph
+        Gin.link(Gin.node(node).links(l)) = current_link;
+    end
+    
+    % mark the node as visited
+    visited_nodes = cat(1, visited_nodes, node);
+    
+    % visit each connected node
+    for n = 1 : length(Gin.node(node).conn)
+        next_node = Gin.node(node).conn(n);
+        if (next_node ~= -1) && ~ismember(next_node, visited_nodes)
+            [Gin, visited_nodes] = visit_node(Gin, next_node, visited_nodes);
+        end
+    end
+
 end
 
 

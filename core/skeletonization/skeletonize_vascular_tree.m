@@ -3,7 +3,7 @@ function [trees_ids, root_pixels] = skeletonize_vascular_tree( vessel_segm, od_s
 %SKELETONIZE_VASCULAR_TREE Skeletonize the segm vascular tree
 
     % preprocess vessel segmentation
-    %vessel_segm = preprocess_vessel_segmentation(vessel_segm);
+    vessel_segm = preprocess_vessel_segmentation(vessel_segm);
 
     % skeletonize the segmentation
     skel = bwmorph(skeleton(vessel_segm)>20, 'skel', Inf);
