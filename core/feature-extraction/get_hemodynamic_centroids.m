@@ -57,7 +57,14 @@ function [ centroids ] = get_hemodynamic_centroids( root_folder, feature_maps_fi
         end
 
         % run a k-means clustering method to identify the centroids
-        [ ~, centroids(start_idx:k*i,:) ] = kmeans(X, k, 'MaxIter', 10000);
+%         replicates = 10;
+%         initialization = zeros(k, size(X,2), replicates);
+%         for r = 1 : replicates
+%             initialization(:,:,r) = X(randsample(size(X, 1), k), :);
+%         end
+%        [ ~, centroids(start_idx:k*i,:) ] = kmeans(X, k, 'MaxIter', 10000, 'Replicates', replicates, 'Start', initialization);
+        [~, current_centroids] = kmeans_varpar(X', k);
+        centroids(start_idx:k*i,:) = current_centroids';
         % update start idx
         start_idx = k*i + 1;
         

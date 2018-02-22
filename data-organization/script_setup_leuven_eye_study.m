@@ -131,4 +131,5 @@ for i = 1 : length(image_filenames)
 end
 
 % save the labels file
-save(fullfile(leuven_eye_study_folder, 'labels.mat'), 'labels');
+filenames = image_filenames;
+save(fullfile(leuven_eye_study_folder, 'labels.mat'), 'labels', 'filenames');

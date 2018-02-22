@@ -58,6 +58,7 @@ addpath(genpath(fullfile(my_root_position, 'experiments'))) ;
 % add each external folder carefully
 addpath(genpath(fullfile(my_root_position, 'external', 'hemodynamics-solver'))) ;
 addpath(genpath(fullfile(my_root_position, 'external', 'skeletonization'))) ;
+addpath(genpath(fullfile(my_root_position, 'external', 'kmeans_varpar')));
 addpath('external')
 
 % compile the random forest classifier
