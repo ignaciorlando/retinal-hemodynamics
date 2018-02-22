@@ -1,11 +1,18 @@
-function extract_bag_of_hemodynamic_features( root_folder, feature_maps_filenames, centroids, output_path )
+function features = extract_bag_of_hemodynamic_features( root_folder, feature_maps_filenames, centroids, output_path, verbosity )
 %EXTRACT_BAG_OF_HEMODYNAMIC_FEATURES Summary of this function goes here
 %   Detailed explanation goes here
+
+    if exist('verbosity', 'var') == 0
+        verbosity = false;
+    end
 
     % identify the number of hemodynamic features
     size_centroids = size(centroids);
     k = size_centroids(1);
     n_features = size_centroids(2);
+    
+    % initialize the cell array of features
+    features = cell(size(feature_maps_filenames));
     
     % extract features for each of the feature maps
     for j = 1 : length(feature_maps_filenames)
@@ -15,7 +22,9 @@ function extract_bag_of_hemodynamic_features( root_folder, feature_maps_filename
         % identify centerlines
         centerlines = current_feature_map.sol(:,:,end) > 0;
         
-        fprintf(['Extracting features from ', feature_maps_filenames{j}, '\n']);
+        if verbosity
+            fprintf(['Extracting features from ', feature_maps_filenames{j}, '\n']);
+        end
         
         % initialize the matrix of features
         X = zeros(length(find(centerlines(:))), n_features);
@@ -41,12 +50,16 @@ function extract_bag_of_hemodynamic_features( root_folder, feature_maps_filename
         [~, activated_word] = min(distances,[],2);
         % count the number of repetitions
         X = histc(activated_word,1:k);
+        % assign to the array of features
+        features{j} = X;
         
-        % output filename
-        output_filename = feature_maps_filenames{j};
-        output_filename = strcat(output_filename(1:end-8), '.mat');
-        % save it
-        save(fullfile(output_path, output_filename), 'X');
+        if ~strcmp(output_path, '')
+            % output filename
+            output_filename = feature_maps_filenames{j};
+            output_filename = strcat(output_filename(1:end-8), '.mat');
+            % save it
+            save(fullfile(output_path, output_filename), 'X');
+        end
         
     end
 

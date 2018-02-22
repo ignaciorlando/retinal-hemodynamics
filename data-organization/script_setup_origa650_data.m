@@ -1,5 +1,5 @@
 
-% SCRIPT_SETUP_ORIGA650
+% SCRIPT_SETUP_ORIGA650_DATA
 % -------------------------------------------------------------------------
 % This script organizes the downloaded ORIGA605 database.
 % -------------------------------------------------------------------------

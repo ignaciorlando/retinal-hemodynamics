@@ -68,7 +68,7 @@ for i = 1 : length(filenames)
         % Loop over all inlet pressures
         for k = 1 : numel(P_in);
             output_filename = fullfile(output_data_folder, strcat(filenames{i}(1:end-4),'_SC',num2str(countSim)));
-            [sol, time] = run_simulation( current_filename, roots, mu, rho, P_in(k), P_ref, Q_in(j), mExp, rModel, output_filename, imgSize, pixelSpacing );
+            [sol, time] = run_simulation( current_filename, roots, mu, rho, P_in(k), P_ref, Q_in(j), mExp, rModel, output_filename, imgSize(i,:), pixelSpacing(i,:) );
             countSim = countSim + 1;
             
             % Store the solution of the outlets of the patient in an array
