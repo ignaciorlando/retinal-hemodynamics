@@ -40,10 +40,14 @@ if exist(skeletonization_library, 'file') == 0
     delete('Skeleton.zip')
 end
 % compile the library
-disp('Compiling anaskel.cpp...');
-mex 'external/skeletonization/anaskel.cpp' -outdir 'external/skeletonization/'
-disp('Compiling skeleton.cpp...');
-mex 'external/skeletonization/skeleton.cpp' -outdir 'external/skeletonization/'
+if exist('external/skeletonization/anaskel.cpp', 'file')==0
+    disp('Compiling anaskel.cpp...');
+    mex 'external/skeletonization/anaskel.cpp' -outdir 'external/skeletonization/'
+end
+if exist('external/skeletonization/skeleton.cpp', 'file')==0
+    disp('Compiling skeleton.cpp...');
+    mex 'external/skeletonization/skeleton.cpp' -outdir 'external/skeletonization/'
+end
 
 % add main folders to path
 addpath(genpath(fullfile(my_root_position, 'data-organization'))) ;
