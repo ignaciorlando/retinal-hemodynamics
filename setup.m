@@ -76,10 +76,13 @@ clc
 markSchmidt_code_path = fullfile('external', 'markSchmidt');
 addpath(markSchmidt_code_path);
 cd(markSchmidt_code_path);
-mexAll;
+fprintf('Compiling minFunc files...\n');
+mex -outdir minFunc minFunc/mcholC.c
+mex -outdir minFunc minFunc/lbfgsC.c
+mex -outdir minFunc minFunc/lbfgsAddC.c
+mex -outdir minFunc minFunc/lbfgsProdC.c
 cd ..
 cd ..
-clear
 clc
 addpath(genpath(markSchmidt_code_path));
 
