@@ -12,12 +12,26 @@ database = 'LeuvenEyeStudy';
 % input folder
 input_data_path = fullfile(pwd, 'data');
 
+% output folder
+output_data_path = fullfile(pwd, 'results');
+
 % classifier
-classifier = 'random-forest';
+%classifier = 'random-forest';
+classifier = 'logistic-regression';
+
+% validation metric
+%validation_metric = 'auc';
+validation_metric = 'acc';
+
+% add cnn based features
+add_cnn_features = false;
+%cnn_features = 'transferred-features-images-onh';
+%type_of_feature = 'prob';
+%type_of_feature = 'features';
 
 % feature extraction -----------
 
 % number of centroids to learn for each of the classes
-ks = 1:10;
+ks = 2:15;
 % simulation scenario
 simulation_scenario = 'SC2';

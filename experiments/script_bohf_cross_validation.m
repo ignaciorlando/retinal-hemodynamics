@@ -103,7 +103,7 @@ for i = 1 : data_partition.NumTestSets
     
     % initialize the array of models for evaluating different k values
     models_for_each_k = cell(length(ks), 1);
-    validation_aucs = zeros(length(ks), 1);
+    validation_performance = zeros(length(ks), 1);
     
     % try different k values
     for j = 1 : length(ks)
@@ -155,43 +155,51 @@ for i = 1 : data_partition.NumTestSets
                 model.training_std = training_std;
                 model.centroids = centroids;
                 % evaluate it
-                [val_scores, ~] = classRF_predict_probabilities(X_val, model);
+                [val_scores, val_yhat] = classRF_predict_probabilities(X_val, model);
 
             case 'logistic-regression'
                 
                 % train a logistic regression classifier
-                model = train_logistic_regression_classifier(X, training_labels, X_val, validation_labels);
+                model = train_logistic_regression_classifier(X, training_labels, X_val, validation_labels, validation_metric);
                 model.training_mean = training_mean;
                 model.training_std = training_std;
                 model.centroids = centroids;
                 % evaluate it
-                [val_scores, ~] = predict_with_logistic_regression(X_val, model);
+                [val_scores, val_yhat] = predict_with_logistic_regression(X_val, model);
                 
             otherwise
                 error('Unsuported classifier. Please, use random-forest');
         end
         
-        % get the AUC value
-        [~,~,info] = vl_roc( 2*validation_labels-1, val_scores);
-        % collect the values
+        switch validation_metric
+            case 'auc'
+                % get the AUC value
+                [~,~,info] = vl_roc( 2*validation_labels-1, val_scores);
+                disp(['--> AUC = ', num2str(info.auc)]);
+                current_performance = info.auc;
+            case 'acc'
+                current_performance = sum(val_yhat==validation_labels) / length(val_yhat);
+                disp(['--> Acc = ', num2str(current_performance)]);
+        end
+                
+        % collect the model
         models_for_each_k{j} = model;
-        disp(['--> AUC = ', num2str(info.auc)]);
         % skip the search if a high value has been already found
-        if (info.auc==1)
-            validation_aucs(j) = info.auc;
+        if (current_performance==1)
+            validation_performance(j) = current_performance;
             disp('Skipping the other k values as we have already found a maximum');
             break
         else
-            validation_aucs(j) = info.auc;
+            validation_performance(j) = current_performance;
         end
         
     end
     
     % pick the best model
-    [best_val_performance, idx] = max(validation_aucs);
+    [best_val_performance, idx] = max(validation_performance);
     model = models_for_each_k{idx};
     k_best = ks(idx);
-    disp(['Best model for k=', num2str(k_best), '(AUC=', num2str(best_val_performance), ')']);
+    disp(['Best model for k=', num2str(k_best), '(', validation_metric, '=', num2str(best_val_performance), ')']);
         
     %disp('Extracting features on the test set');
     test_features = extract_bag_of_hemodynamic_features( simulations_path, test_samples, model.centroids, '', false );
