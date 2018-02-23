@@ -203,7 +203,7 @@ for i = 1 : data_partition.NumTestSets
         X_test = cat(2, X_test, retrieve_cnn_features( cnn_features_path, test_cnn_samples ));
     end    
     
-    % train a classifier
+    % evaluate the classifier
     switch classifier
         
         case 'random-forest'
@@ -220,6 +220,12 @@ for i = 1 : data_partition.NumTestSets
     
 end
 
+
+switch classifier
+    case 'logistic-regression'
+        scores = exp(scores) ./ (1 + exp(scores));
+end
+        
 % get the ROC curve
 [TPR,TNR,info] = vl_roc( 2*labels-1, scores);
 % plot it
