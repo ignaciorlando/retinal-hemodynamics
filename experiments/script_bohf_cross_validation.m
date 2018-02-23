@@ -176,6 +176,7 @@ for i = 1 : data_partition.NumTestSets
         % collect the values
         models_for_each_k{j} = model;
         validation_aucs(j) = info.auc;
+        disp(['--> AUC = ', num2str(info.auc)]);
         
     end
     

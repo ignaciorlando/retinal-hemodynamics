@@ -20,7 +20,7 @@ function features = extract_bag_of_hemodynamic_features( root_folder, feature_ma
         % load the feature map
         current_feature_map = load(fullfile(root_folder, feature_maps_filenames{j}));
         % identify centerlines
-        centerlines = current_feature_map.sol(:,:,end) > 0;
+        centerlines = ~isnan(current_feature_map.sol(:,:,1));
         
         if verbosity
             fprintf(['Extracting features from ', feature_maps_filenames{j}, '\n']);
