@@ -8,7 +8,6 @@ function [ centroids ] = get_hemodynamic_centroids( root_folder, feature_maps_fi
     loaded_file = load(fullfile(root_folder, feature_maps_filenames{1}));
     input_size = size(loaded_file.sol);
     n_features = input_size(3) - 1;
-    image_size = input_size(1:2);
     
     start_idx = 1;
     
@@ -34,7 +33,7 @@ function [ centroids ] = get_hemodynamic_centroids( root_folder, feature_maps_fi
             current_feature_map = load(fullfile(root_folder, current_feature_maps_filenames{j}));
             % use the fifth coordinate (the skeletonization) to identify
             % the centerlines that will be characterized
-            centerlines = current_feature_map.sol(:,:,5) > 0;
+            centerlines = ~isnan(current_feature_map.sol(:,:,1));
             
             % initialize the current design matrix
             current_X = zeros(length(find(centerlines(:))), n_features);
@@ -49,7 +48,7 @@ function [ centroids ] = get_hemodynamic_centroids( root_folder, feature_maps_fi
             % normalize using mean and standard deviation
             current_mean = mean(current_X);
             current_std = std(current_X);
-            current_X = bsxfun(@rdivide, bsxfun(@minus, current_X, current_mean), current_std);
+            current_X = bsxfun(@rdivide, bsxfun(@minus, current_X, current_mean), current_std + eps);
             
             % and now concatenate this to the big design matrix
             X = cat(1, X, current_X);
@@ -57,12 +56,6 @@ function [ centroids ] = get_hemodynamic_centroids( root_folder, feature_maps_fi
         end
 
         % run a k-means clustering method to identify the centroids
-%         replicates = 10;
-%         initialization = zeros(k, size(X,2), replicates);
-%         for r = 1 : replicates
-%             initialization(:,:,r) = X(randsample(size(X, 1), k), :);
-%         end
-%        [ ~, centroids(start_idx:k*i,:) ] = kmeans(X, k, 'MaxIter', 10000, 'Replicates', replicates, 'Start', initialization);
         [~, current_centroids] = kmeans_varpar(X', k);
         centroids(start_idx:k*i,:) = current_centroids';
         % update start idx

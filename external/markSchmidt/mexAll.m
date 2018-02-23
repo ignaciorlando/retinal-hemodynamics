@@ -60,14 +60,14 @@ mex -outdir LLM/mex LLM/mex/LLM_inferC.c
 mex -outdir LLM/mex LLM/mex/LLM_suffStatC.c
 mex -outdir LLM/mex LLM/mex/LLM_pseudoC.c
 
-% UGMep
-fprintf('Compiling UGMep files\n');
-mex -outdir UGMep/mex UGMep/mex/UGMep_Decode_ICMC.c
-mex -outdir UGMep/mex UGMep/mex/UGMep_EnergyC.c
-mex -outdir UGMep/mex UGMep/mex/UGMep_makeClampedEnergyC.c
-mex -outdir UGMep/mex UGMep/mex/UGMep_Decode_GraphCutC.c
-mex -outdir UGMep/mex UGMep/mex/UGMep_Decode_AlphaExpansionC.c
-mex -outdir UGMep/mex UGMep/mex/UGMep_Decode_ExpandShrinkC.c
+% % UGMep
+% fprintf('Compiling UGMep files\n');
+% mex -outdir UGMep/mex UGMep/mex/UGMep_Decode_ICMC.c
+% mex -outdir UGMep/mex UGMep/mex/UGMep_EnergyC.c
+% mex -outdir UGMep/mex UGMep/mex/UGMep_makeClampedEnergyC.c
+% mex -outdir UGMep/mex UGMep/mex/UGMep_Decode_GraphCutC.c
+% mex -outdir UGMep/mex UGMep/mex/UGMep_Decode_AlphaExpansionC.c
+% mex -outdir UGMep/mex UGMep/mex/UGMep_Decode_ExpandShrinkC.c
 
 % Ewout
 fprintf('Compiling Ewout files...\n');

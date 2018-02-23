@@ -63,14 +63,26 @@ addpath('external')
 
 % compile the random forest classifier
 random_forest_path = fullfile('external', 'RF_Class_C');
-addpath(random_forest_path)
-cd(random_forest_path)
-compile_random_forest()
+addpath(random_forest_path);
+cd(random_forest_path);
+compile_random_forest();
 cd ..
 cd ..
 
 clear
 clc
+
+% compile the markSchmidt code
+markSchmidt_code_path = fullfile('external', 'markSchmidt');
+addpath(markSchmidt_code_path);
+cd(markSchmidt_code_path);
+mexAll;
+cd ..
+cd ..
+clear
+clc
+addpath(genpath(markSchmidt_code_path));
+
 
 % CNN fine tuning
 cnn_finetuning_library = fullfile('external', 'cnn-finetune');

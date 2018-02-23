@@ -53,17 +53,32 @@ for i = 1 : data_partition.NumTestSets
     fprintf( '========= Fold %d/%d =========\n', i, data_partition.NumTestSets);
     
     % separate the training and validation
-    % collect the indices of the original training samples
-    original_training_samples = find(data_partition.training(i));
-    % 80% will be used for training
-    n_training_samples = floor(length(original_training_samples) * 0.8);
-    % use the first n_training_samples for training
+    
+    % collect the indices of the original training samples and randomly
+    % shuffle them
+    original_training_idx = find(data_partition.training(i));
+    original_training_idx = original_training_idx(randperm(length(original_training_idx)));
+    original_training_labels = labels(original_training_idx);
+    % identify the labels
+    unique_labels = unique(original_training_labels);
+    % initialize the training and validation sets
     current_training_set = zeros(length(data_partition.training(i)), 1);
-    current_training_set(original_training_samples(1:n_training_samples)) = 1;
-    current_training_set = current_training_set > 0;
-    % and the remaining for validation
     current_validation_set = zeros(length(data_partition.training(i)), 1);
-    current_validation_set(original_training_samples(n_training_samples+1:end)) = 1;
+    
+    % ensure a similar distribution of each sample
+    for l_id = 1 : length(unique_labels)
+       
+        % get the training idx associated with current label
+       current_labels_original_training_idx = original_training_idx(original_training_labels == unique_labels(l_id));
+       % 80% will be used for training
+       n_training_samples = floor(length(current_labels_original_training_idx) * 0.8);       
+       % use the first n_training_samples for training
+       current_training_set(current_labels_original_training_idx(1:n_training_samples)) = 1;
+       % and the remaining for validation
+       current_validation_set(current_labels_original_training_idx(n_training_samples+1:end)) = 1;
+    end
+    % turn it to logical
+    current_training_set = current_training_set > 0;
     current_validation_set = current_validation_set > 0;
     
     % divide data into training 
@@ -141,15 +156,26 @@ for i = 1 : data_partition.NumTestSets
                 model.centroids = centroids;
                 % evaluate it
                 [val_scores, ~] = classRF_predict_probabilities(X_val, model);
-                % get the AUC value
-                [~,~,info] = vl_roc( 2*validation_labels-1, val_scores);
-                % collect the values
-                models_for_each_k{j} = model;
-                validation_aucs(j) = info.auc;
 
+            case 'logistic-regression'
+                
+                % train a logistic regression classifier
+                model = train_logistic_regression_classifier(X, training_labels, X_val, validation_labels);
+                model.training_mean = training_mean;
+                model.training_std = training_std;
+                model.centroids = centroids;
+                % evaluate it
+                [val_scores, ~] = predict_with_logistic_regression(X_val, model);
+                
             otherwise
                 error('Unsuported classifier. Please, use random-forest');
         end
+        
+        % get the AUC value
+        [~,~,info] = vl_roc( 2*validation_labels-1, val_scores);
+        % collect the values
+        models_for_each_k{j} = model;
+        validation_aucs(j) = info.auc;
         
     end
     
@@ -176,8 +202,12 @@ for i = 1 : data_partition.NumTestSets
             % evaluate it
             [scores(test_index), y_hat(test_index)] = classRF_predict_probabilities(X_test, model);
             
+        case 'logistic-regression'
+            % evaluate it
+            [scores(test_index), y_hat(test_index)] = predict_with_logistic_regression(X_test, model);
+            
         otherwise
-            error('Unsuported classifier. Please, use random-forest');
+            error('Unsuported classifier. Please, use random-forest or logistic-regression');
     end
     
 end
@@ -202,3 +232,23 @@ box on
 fprintf('=================================\n');
 fprintf('AUC = %d\n', info.auc);
 fprintf('Acc = %d\n', sum(y_hat == labels)/length(y_hat));
+
+%% save the results
+
+% rename scores variable
+all_scores = scores;
+% create a tag for the experiment
+if add_cnn_features
+    output_tag = strcat('bohf-', classifier, '-', cnn_features, '-', type_of_feature);
+else
+    output_tag = strcat('bohf-', classifier);
+end
+% update the output path
+output_data_path = fullfile(output_data_path, database, output_tag);
+mkdir(output_data_path);
+% save each score separately
+for i = 1 : length(image_filenames)
+    scores = all_scores(i);
+    current_filename = image_filenames{i};
+    save(fullfile(output_data_path, strcat(current_filename(1:end-3), 'mat')), 'scores');
+end
