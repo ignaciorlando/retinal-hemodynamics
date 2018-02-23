@@ -29,7 +29,7 @@ function features = extract_bag_of_hemodynamic_features( root_folder, feature_ma
         % initialize the matrix of features
         X = zeros(length(find(centerlines(:))), n_features);
         % for each feature...
-        for f = 1 : n_features
+        for f = 1 : size(current_feature_map.sol,3) - 1
             % get current feature
             f_feature_map = current_feature_map.sol(:,:,f);
             % remove the elements with 0 values

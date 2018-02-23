@@ -38,7 +38,7 @@ function [ centroids ] = get_hemodynamic_centroids( root_folder, feature_maps_fi
             % initialize the current design matrix
             current_X = zeros(length(find(centerlines(:))), n_features);
             % and collect all the features
-            for f = 1 : n_features
+            for f = 1 : size(current_feature_map.sol, 3) - 1
                 % get current feature
                 current_feature_map_f = current_feature_map.sol(:,:,f);
                 % add it to the design matrix

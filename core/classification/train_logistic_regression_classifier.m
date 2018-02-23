@@ -1,6 +1,10 @@
 
 function model = train_logistic_regression_classifier(X, training_labels, X_val, validation_labels)
 
+    % add a bias term to the training and validation sets
+    X = cat(2, X, ones(size(X,1), 1));
+    X_val = cat(2, X_val, ones(size(X_val,1), 1));
+
     % initialize lambda values to analyze
     lambda_values = 10.^(-10:10);
 

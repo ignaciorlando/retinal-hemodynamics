@@ -175,8 +175,15 @@ for i = 1 : data_partition.NumTestSets
         [~,~,info] = vl_roc( 2*validation_labels-1, val_scores);
         % collect the values
         models_for_each_k{j} = model;
-        validation_aucs(j) = info.auc;
         disp(['--> AUC = ', num2str(info.auc)]);
+        % skip the search if a high value has been already found
+        if (info.auc==1)
+            validation_aucs(j) = info.auc;
+            disp('Skipping the other k values as we have already found a maximum');
+            break
+        else
+            validation_aucs(j) = info.auc;
+        end
         
     end
     
