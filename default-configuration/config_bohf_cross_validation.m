@@ -18,6 +18,6 @@ classifier = 'random-forest';
 % feature extraction -----------
 
 % number of centroids to learn for each of the classes
-k = 10;
+ks = 1:10;
 % simulation scenario
 simulation_scenario = 'SC2';

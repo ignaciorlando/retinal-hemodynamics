@@ -18,6 +18,7 @@ images_folder = fullfile(input_data_path, 'images');
 % and the path with the hemodynamic simulations
 simulations_path = fullfile(input_data_path, 'hemodynamic-simulation');
 
+
 % load the labels
 load(fullfile(input_data_path, 'labels.mat'));
 
@@ -28,6 +29,14 @@ image_filenames = { image_filenames.name };
 % retrieve the simulation filenames
 feature_map_filenames = dir(fullfile(simulations_path, strcat('*_', simulation_scenario, '_sol.mat')));
 feature_map_filenames = { feature_map_filenames.name };
+
+% retrieve the cnn features, if necessary
+% set the path for collecting pre-computed features
+if add_cnn_features
+    cnn_features_path = fullfile(input_data_path, cnn_features);
+    cnn_features_filenames = dir(fullfile(cnn_features_path, strcat('*-', type_of_feature, '.mat')));
+    cnn_features_filenames = { cnn_features_filenames.name };
+end
 
 % lets use leave-one-out cross-validation
 data_partition = cvpartition(length(feature_map_filenames), 'LeaveOut');
@@ -67,6 +76,13 @@ for i = 1 : data_partition.NumTestSets
     test_samples = feature_map_filenames(data_partition.test(i));
     test_labels = labels(data_partition.test(i));
     
+    % if we also need cnn based features...
+    if add_cnn_features
+        training_cnn_samples = cnn_features_filenames(current_training_set);
+        validation_cnn_samples = cnn_features_filenames(current_validation_set);
+        test_cnn_samples = cnn_features_filenames(data_partition.test(i));
+    end
+    
     % identify the test index
     test_index = find(data_partition.test(i));
     
@@ -100,11 +116,18 @@ for i = 1 : data_partition.NumTestSets
         X = compact_features(training_features);
         % normalize the features
         training_mean = mean(X);
-        training_std = std(X);
+        training_std = std(X) + eps;
         X = bsxfun(@rdivide, bsxfun(@minus, X, training_mean), training_std);
+        if add_cnn_features
+            X = cat(2, X, retrieve_cnn_features( cnn_features_path, training_cnn_samples ));
+        end    
+        
         % normalize all the validation features
         X_val = compact_features(validation_features);
         X_val = bsxfun(@rdivide, bsxfun(@minus, X_val, training_mean), training_std);
+        if add_cnn_features
+            X_val = cat(2, X_val, retrieve_cnn_features( cnn_features_path, validation_cnn_samples ));
+        end
         
         % train a classifier
         switch classifier
@@ -142,6 +165,9 @@ for i = 1 : data_partition.NumTestSets
     % normalize all the test features
     X_test = compact_features(test_features);
     X_test = bsxfun(@rdivide, bsxfun(@minus, X_test, model.training_mean), model.training_std);
+    if add_cnn_features
+        X_test = cat(2, X_test, retrieve_cnn_features( cnn_features_path, test_cnn_samples ));
+    end    
     
     % train a classifier
     switch classifier

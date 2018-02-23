@@ -49,7 +49,8 @@ for i = 1 : length(image_filenames)
     [X, scores] = extract_cnn_features(cnn, { fullfile(root_folder, image_filenames{i}) });
     % save the features in a MAT file
     current_filename = image_filenames{i};
-    save(fullfile(output_path_features, strcat(current_filename(1:end-3), 'mat')), 'X');
+    save(fullfile(output_path_features, strcat(current_filename(1:end-4), '-features.mat')), 'X');
+    save(fullfile(output_path_features, strcat(current_filename(1:end-4), '-prob.mat')), 'scores');
     % save the scores for the true class
     scores = scores(2);
     save(fullfile(output_path_probabilities, strcat(current_filename(1:end-3), 'mat')), 'scores');
