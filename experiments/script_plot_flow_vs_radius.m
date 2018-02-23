@@ -1,0 +1,137 @@
+
+% SCRIPT_PLOT_FLOW_VS_RADIUS
+% -------------------------------------------------------------------------
+% This script is intended to generates plots of radius vs flow of the
+% simulation results.
+% -------------------------------------------------------------------------
+
+clc
+clear
+close all
+
+% Configurate the script, the script should contain the pixel spacing and image size
+config_generate_input_data_vtk;
+% input folder
+input_folder  = fullfile(input_folder, database);
+% output folder
+output_folder = fullfile(output_folder, database);
+% The indexes for the hemodynamics simulations results
+config_hemo_var_idx
+
+%% Set up variables
+% Load the solution at the outlets and the times
+% load(strcat(input_folder,'/hemodynamic-simulation/SolutionsAtOutlets'));
+% Loads the true labels for classification
+load(strcat(input_folder,'/labels'));
+
+%% Loop over all the solutions 
+% retrieve arteries filenames
+filenames = dir(fullfile(input_folder, '/hemodynamic-simulation/*SC2*.mat'));
+filenames = {filenames.name};
+
+Sols  = cell(length(filenames),1);
+Times = cell(length(filenames),1);
+for p = 1 : length(filenames)
+    current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenames{p});    
+    load(current_filename);
+    
+    % This patch is to set segments ids in the mask, should be deleted
+    % after re-running simulations using the last version of the
+    % run_simulation function.
+    polydata      = vtkPolyDataReader(strrep(current_filename,'.mat','.vtk'));
+    spacing = pixelSpacing(p,:);
+    id_seg = 0;
+    for ci = 1 : size(polydata.Cells,1);
+        CellI = polydata.Cells{ci};
+        % loop puting the segment id to all the pixels
+        id_seg = id_seg - 1;
+        for point = 1 : numel(CellI);
+            i = round(polydata.Points(CellI(point)+1,1) / spacing(1));
+            j = round(polydata.Points(CellI(point)+1,2) / spacing(2));
+            if (sol(i,j,idx_mask) == 0);
+                sol(i,j,idx_mask) = id_seg;
+            end;
+        end;
+    end;
+    
+    [I,J] = find(~isnan(sol(:,:,idx_mask)) & sol(:,:,idx_mask)<0);
+    sol_  = nan(numel(I),5);
+    for i = 1 : numel(I);
+        sol_(i,:) = sol(I(i),J(i),:);
+    end;
+    nSegments = abs(min(sol_(:,idx_mask)));
+    sol__  = nan(nSegments,idx_mask);
+    for i = 1 : nSegments;
+        sol__(i,:) = mean(sol_(sol_(:,idx_mask)==-i,:),1);
+    end;    
+    Sols(p) = {sol__};
+end
+
+
+%% Perform the plot of the data and the approximated function
+% loop over all the patients, and plot the points and approximations with
+% differen colors depending on the labels
+n = numel(Sols);
+fit_func = 'exp';
+r_l0 = [];
+r_l1 = [];
+q_l0 = [];
+q_l1 = [];
+
+script_new_figure
+for p = 1 : n;
+    %r = Sols{p}{2,1}(:,idx_r);
+    %q = Sols{p}{2,1}(:,idx_q);
+    r = Sols{p}(:,idx_r);
+    q = Sols{p}(:,idx_q);
+    [r,I] = sort(r);
+    q     = q(I);
+    if (labels(p));
+        shape = 'x';
+        color = 'r';
+        r_l1 = [r_l1; r];
+        q_l1 = [q_l1; q];
+    else
+        shape = 'o';
+        color = 'k';
+        r_l0 = [r_l0; r];
+        q_l0 = [q_l0; q];
+    end;
+    scatter(r,q,35,color,shape,'LineWidth',0.5);
+    
+    fit_coef = fit_point_data( [r, q], fit_func );
+    y = polyval(fit_coef, r);
+    
+    if (strcmp(fit_func,'exp'));
+        plot(r, exp(y), color,'LineWidth',1);
+    else
+        plot(r, y, color,'LineWidth',1);
+    end;
+end;
+xlabel('Mean radius per segment [cm]','interpreter','latex','fontsize',16);
+ylabel('Flow per segment [ml/s]','interpreter','latex','fontsize',16);
+
+% Now approximates one function for each label.
+script_new_figure
+
+[r_l0,I] = sort(r_l0);
+q_l0     = q_l0(I);
+[r_l1,I] = sort(r_l1);
+q_l1     = q_l1(I);
+fit_coef_l0 = fit_point_data( [r_l0, q_l0], fit_func );
+y_l0        = polyval(fit_coef_l0, r_l0);
+fit_coef_l1 = fit_point_data( [r_l1, q_l1], fit_func );
+y_l1        = polyval(fit_coef_l1, r_l1);
+
+if (strcmp(fit_func,'exp'));
+    plot(r_l1, exp(y_l1), 'r','LineWidth',1);
+    plot(r_l0, exp(y_l0), 'k','LineWidth',1);
+else
+    plot(r_l1, y_l1, 'r','LineWidth',1);
+    plot(r_l0, y_l0, 'k','LineWidth',1);    
+end;
+xlabel('Mean radius per segment [cm]','interpreter','latex','fontsize',16);
+ylabel('Flow per segment [ml/s]','interpreter','latex','fontsize',16);
+legend(gca,{'Healthy','Diseased'},'Interpreter','LaTeX','FontSize',16,'Location','NorthWest');
+
+
