@@ -12,6 +12,13 @@ input_folder = fullfile(pwd, 'data');
 output_folder = fullfile(pwd, 'data');
 
 % database
-database = 'RITE-training';
-% pixel spacing
-pixelSpacing = [0.0025, 0.0025];
+% database = 'RITE-test';
+% database = 'RITE-training';
+database = 'LeuvenEyeStudy';
+% pixel spacing, in [cm]
+% pixelSpacing = [ones(40,1)*0.0025, ones(40,1)*0.0025]; % RITE database
+pixelSpacing = [ones(22,1)*0.0006, ones(22,1)*0.0006];   % LeuvenEyeStudy
+% The image size
+% imgSize      = [ones(40,1)*565, ones(40,1)*584];  % RITE database
+imgSize       = [ones(22,1)*1444, ones(22,1)*1620]; % LeuvenEyeStudy
+imgSize(12,:) = [1958, 2196];

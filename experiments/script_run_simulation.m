@@ -5,6 +5,8 @@
 % -------------------------------------------------------------------------
 
 clc
+clear
+close all
 
 % Configurate the script, the script should contain the pixel spacing and image size
 config_generate_input_data_vtk;
@@ -12,6 +14,9 @@ config_generate_input_data_vtk;
 input_folder = fullfile(input_folder, database);
 % output folder
 output_folder = fullfile(output_folder, database);
+% Crates HDidx, the struct containing the hemodynamic indexes in the 
+% solution array.
+config_hemo_var_idx
 
 %% set up variables
 
@@ -68,7 +73,7 @@ for i = 1 : length(filenames)
         % Loop over all inlet pressures
         for k = 1 : numel(P_in);
             output_filename = fullfile(output_data_folder, strcat(filenames{i}(1:end-4),'_SC',num2str(countSim)));
-            [sol, time] = run_simulation( current_filename, roots, mu, rho, P_in(k), P_ref, Q_in(j), mExp, rModel, output_filename, imgSize(i,:), pixelSpacing(i,:) );
+            [sol, time] = run_simulation( current_filename, roots, mu, rho, P_in(k), P_ref, Q_in(j), mExp, rModel, output_filename, imgSize(i,:), pixelSpacing(i,:), HDidx );
             countSim = countSim + 1;
             
             % Store the solution of the outlets of the patient in an array

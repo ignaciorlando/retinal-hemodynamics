@@ -5,11 +5,13 @@
 % containing the solutions.
 % -------------------------------------------------------------------------
 
-idx_r    = 1; % Radius
-idx_q    = 2; % Flow
-idx_p    = 3; % Pressure
-idx_v    = 4; % Velosity
-%idx_res  = 5; % Resistance
-%idx_re   = 6; % Reynolds
-%idx_wss  = 7; % Wall Shear Stress
-idx_mask = 5; % Mask
+% HDidx:   The struct containing the hemodynamic indexes in the solution
+%          array.
+HDidx.r    = 1; % Radius
+HDidx.q    = 2; % Flow
+HDidx.p    = 3; % Pressure
+HDidx.v    = 4; % Velosity
+HDidx.res  = 5; % Resistance
+HDidx.re   = 6; % Reynolds
+HDidx.wss  = 7; % Wall Shear Stress
+HDidx.mask = 8; % Mask

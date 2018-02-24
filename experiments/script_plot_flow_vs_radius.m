@@ -34,35 +34,16 @@ Times = cell(length(filenames),1);
 for p = 1 : length(filenames)
     current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenames{p});    
     load(current_filename);
-    
-    % This patch is to set segments ids in the mask, should be deleted
-    % after re-running simulations using the last version of the
-    % run_simulation function.
-    polydata      = vtkPolyDataReader(strrep(current_filename,'.mat','.vtk'));
-    spacing = pixelSpacing(p,:);
-    id_seg = 0;
-    for ci = 1 : size(polydata.Cells,1);
-        CellI = polydata.Cells{ci};
-        % loop puting the segment id to all the pixels
-        id_seg = id_seg - 1;
-        for point = 1 : numel(CellI);
-            i = round(polydata.Points(CellI(point)+1,1) / spacing(1));
-            j = round(polydata.Points(CellI(point)+1,2) / spacing(2));
-            if (sol(i,j,idx_mask) == 0);
-                sol(i,j,idx_mask) = id_seg;
-            end;
-        end;
-    end;
-    
-    [I,J] = find(~isnan(sol(:,:,idx_mask)) & sol(:,:,idx_mask)<0);
-    sol_  = nan(numel(I),5);
+       
+    [I,J] = find(~isnan(sol(:,:,HDidx.mask)) & sol(:,:,HDidx.mask)<0);
+    sol_  = nan(numel(I),HDidx.mask);
     for i = 1 : numel(I);
         sol_(i,:) = sol(I(i),J(i),:);
     end;
-    nSegments = abs(min(sol_(:,idx_mask)));
-    sol__  = nan(nSegments,idx_mask);
+    nSegments = abs(min(sol_(:,HDidx.mask)));
+    sol__  = nan(nSegments,HDidx.mask);
     for i = 1 : nSegments;
-        sol__(i,:) = mean(sol_(sol_(:,idx_mask)==-i,:),1);
+        sol__(i,:) = mean(sol_(sol_(:,HDidx.mask)==-i,:),1);
     end;    
     Sols(p) = {sol__};
 end
@@ -80,10 +61,10 @@ q_l1 = [];
 
 script_new_figure
 for p = 1 : n;
-    %r = Sols{p}{2,1}(:,idx_r);
-    %q = Sols{p}{2,1}(:,idx_q);
-    r = Sols{p}(:,idx_r);
-    q = Sols{p}(:,idx_q);
+    %r = Sols{p}{2,1}(:,HDidx.r);
+    %q = Sols{p}{2,1}(:,HDidx.q);
+    r = Sols{p}(:,HDidx.r);
+    q = Sols{p}(:,HDidx.q);
     [r,I] = sort(r);
     q     = q(I);
     if (labels(p));
