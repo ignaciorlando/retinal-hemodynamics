@@ -1,4 +1,4 @@
-function [ sol, times ] = run_simulation( inputFile, roots, mu, rho, P_in, P_ref, Q_in, mExp, rModel, outputFile, imgSize, spacing )
+function [ sol, times ] = run_simulation( inputFile, roots, mu, rho, P_in, P_ref, Q_in, mExp, rModel, outputFile, imgSize, spacing, HDidx )
 %RUN_SIMULATION Given an input vtk file and a set of parameters, perform an
 % hemodynamics simulations and export the result to a .mat file in a matrix
 % forma.
@@ -25,6 +25,8 @@ function [ sol, times ] = run_simulation( inputFile, roots, mu, rho, P_in, P_ref
 %          points coordinates. No size check is perform.
 % spacing: The pixel spacing, used to convert point coordinates into image
 %          indexes.
+% HDidx:   The struct containing the hemodynamic indexes in the solution
+%          array.
 %
 %
 % Retunrs:
@@ -146,64 +148,15 @@ times(2) = toc;
 tic
 % Reads the vtk containing the solution and generates the matrix with the
 % solution.
-sol = nan([imgSize,5]);
-
 movefile(strcat(outputFile,'_vasculature.vtk'), strcat(outputFile,'_sol.vtk'));
 fileStep2sol  = strcat(outputFile,'_sol.vtk');
-polydata      = vtkPolyDataReader(fileStep2sol);
-for a = 1 : numel(polydata.PointDataArrays);
-    if (strcmp(polydata.PointDataArrays{a}.Name, 'HD_Flux'));
-        iaQ = a;
-    elseif (strcmp(polydata.PointDataArrays{a}.Name, 'HD_Pressure'));
-        iaP = a;
-    elseif (strcmp(polydata.PointDataArrays{a}.Name, 'Radius'));
-        iaR = a;
-    end;
-end;
-FlowArray     = polydata.PointDataArrays{iaQ}.Array;
-PressureArray = polydata.PointDataArrays{iaP}.Array;
-RadiusArray   = polydata.PointDataArrays{iaR}.Array;
-% First set all pressure and flows, and the mask is set to zero (segment)
-% by default.
-for p = 1 : size(polydata.Points,1);
-    i = round(polydata.Points(p,1) / spacing(1));
-    j = round(polydata.Points(p,2) / spacing(2));
-    sol(i,j,1) = RadiusArray(p);
-    sol(i,j,2) = FlowArray(p);
-    sol(i,j,3) = PressureArray(p);
-    sol(i,j,4) = FlowArray(p) ./ (pi * RadiusArray(p) .* RadiusArray(p));
-    sol(i,j,5) = 0;
-end;
-% Now set all the roots mask to one
-for r = 1 : size(roots, 1);
-    i = round(roots(r,1) / spacing(1));
-    j = round(roots(r,2) / spacing(2));
-    sol(i,j,5) = 1;
-end;
-% Now set all the terminal and bifurcation mask to two and three
-for ci = 1 : size(polydata.Cells,1);
-    CellI = polydata.Cells{ci};
-    i = round(polydata.Points(CellI(end),1) / spacing(1));
-    j = round(polydata.Points(CellI(end),2) / spacing(2));
-    isTerminal = 1;
-    for cj = 1 : size(polydata.Cells,1);
-        CellJ = polydata.Cells{cj};
-        if (CellI(end)==CellJ(1));
-            isTerminal = 0;
-            break;
-        end;
-    end;
-    if (isTerminal==1);
-        sol(i,j,5) = 2;
-    else
-        sol(i,j,5) = 3;
-    end;
-end;
+
+sol = vtkSimulationResultImporter( fileStep2sol, imgSize, spacing, roots, HDidx );
 
 % Saves the sol matrix to file
 save(strcat(outputFile,'_sol.mat'), 'sol');
 
-% deletes all auxiliary files except the solution (.mat and .vtk files)
+%deletes all auxiliary files except the solution (.mat and .vtk files)
 delete(strcat(outputFile,'_0DModel.vtk'));
 delete(strcat(outputFile,'_0DModelSO.vtk'));
 delete(strcat(outputFile,'_sim_step0.vtk'));

@@ -1,4 +1,3 @@
-
 % SCRIPT_EVALUATE_CLASSIFICATION
 % -------------------------------------------------------------------------
 % Use this script to evaluate the performance of different classifiers

@@ -19,54 +19,43 @@ output_folder = fullfile(output_folder, database);
 config_hemo_var_idx
 
 %% Set up variables
-% Load the solution at the outlets and the times
-% load(strcat(input_folder,'/hemodynamic-simulation/SolutionsAtOutlets'));
 % Loads the true labels for classification
 load(strcat(input_folder,'/labels'));
 
-%% Loop over all the solutions 
-% retrieve arteries filenames
-filenames = dir(fullfile(input_folder, '/hemodynamic-simulation/*SC2*.mat'));
-filenames = {filenames.name};
+% Flag specifying if the plots are done over the terminals (1) or over the
+% segments (0).
+flag_term_segm = 0;
 
-Sols  = cell(length(filenames),1);
-Times = cell(length(filenames),1);
-for p = 1 : length(filenames)
-    current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenames{p});    
-    load(current_filename);
-    
-    % This patch is to set segments ids in the mask, should be deleted
-    % after re-running simulations using the last version of the
-    % run_simulation function.
-    polydata      = vtkPolyDataReader(strrep(current_filename,'.mat','.vtk'));
-    spacing = pixelSpacing(p,:);
-    id_seg = 0;
-    for ci = 1 : size(polydata.Cells,1);
-        CellI = polydata.Cells{ci};
-        % loop puting the segment id to all the pixels
-        id_seg = id_seg - 1;
-        for point = 1 : numel(CellI);
-            i = round(polydata.Points(CellI(point)+1,1) / spacing(1));
-            j = round(polydata.Points(CellI(point)+1,2) / spacing(2));
-            if (sol(i,j,idx_mask) == 0);
-                sol(i,j,idx_mask) = id_seg;
-            end;
+if (flag_term_segm);
+    % Load the solution at the outlets and the times
+    load(strcat(input_folder,'/hemodynamic-simulation/SolutionsAtOutlets'),'Sols');
+    scQidx = 2; % Scenario Q_T index
+    scPidx = 1; % Scenario P_0 index
+else
+    % Loads the solution files one by one and rerieve the vessel segments!
+    scidx     = 2; % Scenario index
+    filenames = dir(fullfile(input_folder, strcat('/hemodynamic-simulation/*SC',num2str(scidx),'*.mat')));
+    filenames = {filenames.name};
+
+    Sols  = cell(length(filenames),1);
+    Times = cell(length(filenames),1);
+    for p = 1 : length(filenames)
+        current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenames{p});    
+        load(current_filename);
+
+        [I,J] = find(~isnan(sol(:,:,HDidx.mask)) & sol(:,:,HDidx.mask)<0);
+        sol_  = nan(numel(I),HDidx.mask);
+        for i = 1 : numel(I);
+            sol_(i,:) = sol(I(i),J(i),:);
         end;
+        nSegments = abs(min(sol_(:,HDidx.mask)));
+        sol__  = nan(nSegments,HDidx.mask);
+        for i = 1 : nSegments;
+            sol__(i,:) = mean(sol_(sol_(:,HDidx.mask)==-i,:),1);
+        end;    
+        Sols(p) = {sol__};
     end;
-    
-    [I,J] = find(~isnan(sol(:,:,idx_mask)) & sol(:,:,idx_mask)<0);
-    sol_  = nan(numel(I),5);
-    for i = 1 : numel(I);
-        sol_(i,:) = sol(I(i),J(i),:);
-    end;
-    nSegments = abs(min(sol_(:,idx_mask)));
-    sol__  = nan(nSegments,idx_mask);
-    for i = 1 : nSegments;
-        sol__(i,:) = mean(sol_(sol_(:,idx_mask)==-i,:),1);
-    end;    
-    Sols(p) = {sol__};
-end
-
+end;
 
 %% Perform the plot of the data and the approximated function
 % loop over all the patients, and plot the points and approximations with
@@ -80,10 +69,13 @@ q_l1 = [];
 
 script_new_figure
 for p = 1 : n;
-    %r = Sols{p}{2,1}(:,idx_r);
-    %q = Sols{p}{2,1}(:,idx_q);
-    r = Sols{p}(:,idx_r);
-    q = Sols{p}(:,idx_q);
+    if (flag_term_segm);
+        r = Sols{p}{scQidx,scPidx}(:,HDidx.r);
+        q = Sols{p}{scQidx,scPidx}(:,HDidx.q);
+    else
+        r = Sols{p}(:,HDidx.r);
+        q = Sols{p}(:,HDidx.q);
+    end;
     [r,I] = sort(r);
     q     = q(I);
     if (labels(p));
