@@ -68,16 +68,19 @@ scores_filenames = { scores_filenames.name };
 %% plot ROC curve
 
 % get all the scores
+all_scores = zeros(length(scores_filenames), 1);
 y_hat = zeros(length(scores_filenames), 1);
 for i = 1 : length(scores_filenames)
     % load this scores
     load(fullfile(input_scores_path, scores_filenames{i}));
-    % attach them to y_hat
-    y_hat(i) = scores;
+    % attach them to all_scores
+    all_scores(i) = scores;
+    % assign the class
+    y_hat(i) = scores > 0.5;
 end
 
 % get the ROC curve
-[TPR,TNR,info] = vl_roc( 2*labels-1, y_hat);
+[TPR,TNR,info] = vl_roc( 2*labels-1, all_scores);
 
 % plot it
 if ~exist('h', 'var')
@@ -93,3 +96,9 @@ xlabel('FPR (1 - Specificity)')
 ylabel('TPR (Sensitivity)')
 grid on
 box on
+
+accuracy = sum(labels==y_hat) / length(labels);
+
+% print accuracy and auc
+disp(['AUC = ', num2str(info.auc)]);
+disp(['Acc = ', num2str(accuracy)]);
