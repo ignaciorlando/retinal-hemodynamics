@@ -11,27 +11,55 @@ config_evaluate_classification;
 % load the labels
 load(fullfile(root_path, 'labels.mat'));
 
-% get the image source name
-switch image_source
-    case 'optic-disc'
-        image_source = 'images-onh';
-        image_tag = 'ONH';
-    case 'full-image'
-        image_source = 'images-fov';
-        image_tag = 'FOV';
-    case 'full-image-without-onh'
-        image_source = 'images-fov-wo-onh';
-        image_tag = 'FOV without ONH';
-end
+
 
 % encode classifier name
 switch classifier
     case 'cnn'
+        
+        % get the image source name
+        switch image_source
+            case 'optic-disc'
+                image_source = 'images-onh';
+                image_tag = 'ONH';
+            case 'full-image'
+                image_source = 'images-fov';
+                image_tag = 'FOV';
+            case 'full-image-without-onh'
+                image_source = 'images-fov-wo-onh';
+                image_tag = 'FOV without ONH';
+        end
+        
         classifier_tag = ['CNN - ', image_tag];
+        
+    case 'logistic-regression'
+        
+        switch features
+            case 'bohf'
+                features_tag = 'BoHF';
+        end
+ 
+        classifier_tag = features_tag;
+    
+    case 'random-forest'
+        
+        switch features
+            case 'bohf'
+                features_tag = 'BoHF';
+        end
+ 
+        classifier_tag = features_tag;
 end
 
 % get input folder
-input_scores_path = fullfile(results_path, strcat(classifier, '-', image_source));
+switch classifier
+    case 'cnn'
+        input_scores_path = fullfile(results_path, strcat(classifier, '-', image_source));
+    case 'logistic-regression'
+        input_scores_path = fullfile(results_path, strcat(features, '-', classifier));
+    case 'random-forest'
+        input_scores_path = fullfile(results_path, strcat(features, '-', classifier));
+end
 
 % get filenames of the scores
 scores_filenames = dir(fullfile(input_scores_path, '*.mat'));
