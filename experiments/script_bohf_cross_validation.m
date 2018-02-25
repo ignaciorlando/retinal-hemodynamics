@@ -70,8 +70,8 @@ for i = 1 : data_partition.NumTestSets
        
         % get the training idx associated with current label
        current_labels_original_training_idx = original_training_idx(original_training_labels == unique_labels(l_id));
-       % 80% will be used for training
-       n_training_samples = floor(length(current_labels_original_training_idx) * 0.8);       
+       % 70% will be used for training
+       n_training_samples = floor(length(current_labels_original_training_idx) * 0.7);       
        % use the first n_training_samples for training
        current_training_set(current_labels_original_training_idx(1:n_training_samples)) = 1;
        % and the remaining for validation
@@ -129,20 +129,20 @@ for i = 1 : data_partition.NumTestSets
         % compact all the training features
         %disp('Collecting all the training features within a single design matrix X');
         X = compact_features(training_features);
+        if add_cnn_features
+            X = cat(2, X, retrieve_cnn_features( cnn_features_path, training_cnn_samples ));
+        end 
         % normalize the features
         training_mean = mean(X);
         training_std = std(X) + eps;
         X = bsxfun(@rdivide, bsxfun(@minus, X, training_mean), training_std);
-        if add_cnn_features
-            X = cat(2, X, retrieve_cnn_features( cnn_features_path, training_cnn_samples ));
-        end    
         
         % normalize all the validation features
         X_val = compact_features(validation_features);
-        X_val = bsxfun(@rdivide, bsxfun(@minus, X_val, training_mean), training_std);
         if add_cnn_features
             X_val = cat(2, X_val, retrieve_cnn_features( cnn_features_path, validation_cnn_samples ));
         end
+        X_val = bsxfun(@rdivide, bsxfun(@minus, X_val, training_mean), training_std);
         
         % train a classifier
         switch classifier
@@ -206,10 +206,10 @@ for i = 1 : data_partition.NumTestSets
     
     % normalize all the test features
     X_test = compact_features(test_features);
-    X_test = bsxfun(@rdivide, bsxfun(@minus, X_test, model.training_mean), model.training_std);
     if add_cnn_features
         X_test = cat(2, X_test, retrieve_cnn_features( cnn_features_path, test_cnn_samples ));
-    end    
+    end 
+    X_test = bsxfun(@rdivide, bsxfun(@minus, X_test, model.training_mean), model.training_std);
     
     % evaluate the classifier
     switch classifier
