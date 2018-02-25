@@ -2,12 +2,20 @@ function [ centroids ] = get_hemodynamic_centroids( root_folder, feature_maps_fi
 %GET_HEMODYNAMIC_CENTROIDS Summary of this function goes here
 %   Detailed explanation goes here
 
+    % call to config_hemo_var_idx to get the ids of the masks
+    config_hemo_var_idx;
+
     % identify different classes in the labels vector
     unique_labels = unique(labels);
     % identify the number of hemodynamic features
     loaded_file = load(fullfile(root_folder, feature_maps_filenames{1}));
-    input_size = size(loaded_file.sol);
-    n_features = input_size(3) - 1;
+    % prepare an array of the useful features
+    to_preserve = ones(size(loaded_file.sol, 3), 1);
+    to_preserve(HDidx.mask) = 0;
+    to_preserve(HDidx.r) = 0;
+    to_preserve = logical(to_preserve);
+    % identify the number of hemodynamic features
+    n_features = length(find(to_preserve));
     
     start_idx = 1;
     
@@ -31,18 +39,20 @@ function [ centroids ] = get_hemodynamic_centroids( root_folder, feature_maps_fi
             
             % get current feature map
             current_feature_map = load(fullfile(root_folder, current_feature_maps_filenames{j}));
-            % use the fifth coordinate (the skeletonization) to identify
-            % the centerlines that will be characterized
-            centerlines = ~isnan(current_feature_map.sol(:,:,1));
+            % use the fifth coordinate to identify the terminal nodes
+            to_mask = current_feature_map.sol(:,:,HDidx.mask) > 0;
+            
+            % remove useless variables from current_feature_map
+            current_feature_map.sol = current_feature_map.sol(:,:,to_preserve);
             
             % initialize the current design matrix
-            current_X = zeros(length(find(centerlines(:))), n_features);
+            current_X = zeros(length(find(to_mask(:))), n_features);
             % and collect all the features
-            for f = 1 : size(current_feature_map.sol, 3) - 1
+            for f = 1 : n_features
                 % get current feature
                 current_feature_map_f = current_feature_map.sol(:,:,f);
                 % add it to the design matrix
-                current_X(:,f) = current_feature_map_f(centerlines);
+                current_X(:,f) = current_feature_map_f(to_mask);
             end
             
             % normalize using mean and standard deviation

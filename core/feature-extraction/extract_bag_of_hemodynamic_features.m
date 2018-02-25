@@ -2,6 +2,9 @@ function features = extract_bag_of_hemodynamic_features( root_folder, feature_ma
 %EXTRACT_BAG_OF_HEMODYNAMIC_FEATURES Summary of this function goes here
 %   Detailed explanation goes here
 
+    % call to config_hemo_var_idx to get the ids of the masks
+    config_hemo_var_idx;
+
     if exist('verbosity', 'var') == 0
         verbosity = false;
     end
@@ -19,21 +22,28 @@ function features = extract_bag_of_hemodynamic_features( root_folder, feature_ma
         
         % load the feature map
         current_feature_map = load(fullfile(root_folder, feature_maps_filenames{j}));
-        % identify centerlines
-        centerlines = ~isnan(current_feature_map.sol(:,:,1));
+        % prepare an array of the useful features
+        to_preserve = ones(size(current_feature_map.sol, 3), 1);
+        to_preserve(HDidx.mask) = 0;
+        to_preserve(HDidx.r) = 0;
+        to_preserve = logical(to_preserve);
+        % use the fifth coordinate to identify the terminal nodes
+        to_mask = current_feature_map.sol(:,:,HDidx.mask) > 0;
+        % remove useless features
+        current_feature_map.sol = current_feature_map.sol(:,:,to_preserve);
         
         if verbosity
             fprintf(['Extracting features from ', feature_maps_filenames{j}, '\n']);
         end
         
         % initialize the matrix of features
-        X = zeros(length(find(centerlines(:))), n_features);
+        X = zeros(length(find(to_mask(:))), n_features);
         % for each feature...
-        for f = 1 : size(current_feature_map.sol,3) - 1
+        for f = 1 : n_features
             % get current feature
             f_feature_map = current_feature_map.sol(:,:,f);
             % remove the elements with 0 values
-            X(:,f) = f_feature_map(centerlines);
+            X(:,f) = f_feature_map(to_mask);
         end
         % normalize by mean and standard deviation
         current_mean = mean(X);
