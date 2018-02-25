@@ -4,9 +4,6 @@ function model = train_logistic_regression_classifier(X, training_labels, X_val,
     % add a bias term to the training and validation sets
     X = cat(2, X, ones(size(X,1), 1));
     X_val = cat(2, X_val, ones(size(X_val,1), 1));
-    % normalize labels between -1 and 1
-    training_labels = 2 * training_labels - 1;
-    validation_labels = 2 * validation_labels - 1;
     
     % initialize lambda values to analyze
     lambda_values = 10.^(-10:10);
@@ -26,14 +23,15 @@ function model = train_logistic_regression_classifier(X, training_labels, X_val,
     for lambda_idx = 1 : length(lambda_values)
         
         lambda = lambda_values(lambda_idx) * ones(size(X,2),1);
+        lambda(end) = 0; % don't penalize the bias
         w = minFunc(@penalizedL2, zeros(size(X,2),1), new_options, funObj, lambda); 
         
         % save current weights
         ws{lambda_idx} = w;
 
         % classify the validation set
-        validation_scores = w' * X_val';
-        val_yhat = sign(validation_scores)';
+        validation_scores = (w' * X_val')';
+        val_yhat = (validation_scores > 0);
         % evaluate
         switch validation_metric
             case 'auc'
@@ -45,7 +43,7 @@ function model = train_logistic_regression_classifier(X, training_labels, X_val,
         end
         % save current performance
         qualities_on_validation(lambda_idx) = current_performance;
-        %fprintf('    lambda=%d   AUC=%d\n', lambda_values(lambda_idx), qualities_on_validation(lambda_idx));
+        fprintf('    lambda=%d   AUC=%d\n', lambda_values(lambda_idx), qualities_on_validation(lambda_idx));
         
     end
     
