@@ -11,7 +11,7 @@ function X = retrieve_cnn_features( cnn_features_path, features_filenames )
     
     % incorporate the other features
     for i = 1 : length(features_filenames)
-        feature_sample = load(fullfile(cnn_features_path, features_filenames{1}));
+        feature_sample = load(fullfile(cnn_features_path, features_filenames{i}));
         if isfield(feature_sample, 'X')
             X(i,:) = feature_sample.X;
         else
