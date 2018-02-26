@@ -94,11 +94,13 @@ It is mandatory to generate the VTK files before running this script.
 The pixel spacing is hardcoded in this script, and should match the one used to generate the VTK files.
 The scripts reads data folders from ```config_generate_input_data```.
 The output is stored in the folder ```RITE-<test|training>/hemodynamic-simulation/```.
+
 For each scenario, a .VTK and a .mat files contaning the simulation results are generated.
 The file name follows the encoding: ```<ImageID>_<test|training>_SC<scenarioID>_sol.<mat|vtk>```.
-The .mat file contains a variable named ```sol```, which is a 3D matrix of dimensions [width,height,5]. 
-Matrix dimensions represents the radius (in [cm]), the flow (in [ml/s]), the pressure (in [mmHg]), the velocity (in [cm/s]) and
-a mask indicating if the centerline pixel is arterial segment (0), a root (1), a terminal (2) or a bifurcation (3).
+
+The .mat file contains a variable named ```sol```, which is a 3D matrix of dimensions [width,height,8]. 
+Matrix dimensions represents (1) the radius (in [cm]), (2) the flow (in [ml/s]), (3) the pressure (in [mmHg]), (4) the velocity (in [cm/s]), (5) resistance, (6) Reynolds number, (7) wall shear stress, and (8)
+a mask indicating if the centerline pixel is arterial segment (0), a root (1), a terminal (2) or a bifurcation (3). All the files have NaN values on non-centerline pixels.
 
 ### Perform data analysis
 
