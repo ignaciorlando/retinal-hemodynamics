@@ -14,13 +14,13 @@ load(fullfile(root_path, 'labels.mat'));
 switch features
     case 'transferred-features'
         input_folder_name = 'cnn';
-        features_tag = 'CNN features learned from ';
+        features_tag = 'CNN features from ';
     case 'bohf'
         input_folder_name = 'bohf';
         features_tag = 'BOHF ';
     case 'combined'
         input_folder_name = 'combined';
-        features_tag = 'BOHF and CNN features learned from ';
+        features_tag = 'BOHF and CNN features from ';
 end
 
 % get the image source name
@@ -39,14 +39,17 @@ end
 % construct the input folder
 switch classifier
     case 'cnn'
-        input_folder_name = strcat(input_folder_name, '-', image_source);
-        classifier_tag = 'CNN (off the shelf)';
+        % (if classifier is cnn, the features will be ignored)
+        input_folder_name = strcat('cnn-', image_source);
+        classifier_tag = ['CNN (off the shelf) from ', image_tag ];
     case 'logistic-regression'
         input_folder_name = strcat(input_folder_name, '-logistic-regression');
         if ~strcmp(features, 'bohf')
             input_folder_name = strcat(input_folder_name, '-transferred-features-', image_source, '-', type_of_feature);
+            classifier_tag = [features_tag, image_tag];
+        else
+            classifier_tag = [features_tag];
         end
-        classifier_tag = ['LogReg - ', features_tag, image_tag];
 end
 
 % initialize the input score path
@@ -85,6 +88,7 @@ plot(1-TNR, TPR, 'LineWidth', 2)
 legend(my_legends, 'Location', 'southeast');
 xlabel('FPR (1 - Specificity)')
 ylabel('TPR (Sensitivity)')
+xticks(0:0.1:1);
 grid on
 box on
 

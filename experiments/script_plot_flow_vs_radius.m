@@ -124,6 +124,6 @@ else
 end;
 xlabel('Mean radius per segment [cm]','interpreter','latex','fontsize',16);
 ylabel('Flow per segment [ml/s]','interpreter','latex','fontsize',16);
-legend(gca,{'Healthy','Diseased'},'Interpreter','LaTeX','FontSize',16,'Location','NorthWest');
+legend(gca,{'Healthy','Glaucomatous'},'Interpreter','LaTeX','FontSize',16,'Location','NorthWest');
 
 

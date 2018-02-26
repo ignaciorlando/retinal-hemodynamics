@@ -39,8 +39,8 @@ function [ centroids ] = get_hemodynamic_centroids( root_folder, feature_maps_fi
             
             % get current feature map
             current_feature_map = load(fullfile(root_folder, current_feature_maps_filenames{j}));
-            % use the fifth coordinate to identify the terminal nodes
-            to_mask = current_feature_map.sol(:,:,HDidx.mask) > 0;
+            % use the fifth coordinate to identify the POIs
+            to_mask = current_feature_map.sol(:,:,HDidx.mask) > 1;
             
             % remove useless variables from current_feature_map
             current_feature_map.sol = current_feature_map.sol(:,:,to_preserve);

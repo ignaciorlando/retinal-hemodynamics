@@ -27,8 +27,8 @@ function features = extract_bag_of_hemodynamic_features( root_folder, feature_ma
         to_preserve(HDidx.mask) = 0;
         to_preserve(HDidx.r) = 0;
         to_preserve = logical(to_preserve);
-        % use the fifth coordinate to identify the terminal nodes
-        to_mask = current_feature_map.sol(:,:,HDidx.mask) > 0;
+        % use the fifth coordinate to identify the POIs
+        to_mask = current_feature_map.sol(:,:,HDidx.mask) > 1;
         % remove useless features
         current_feature_map.sol = current_feature_map.sol(:,:,to_preserve);
         
