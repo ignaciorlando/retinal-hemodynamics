@@ -51,6 +51,7 @@ addpath(genpath(fullfile(my_root_position, 'external', 'hemodynamics-solver'))) 
 addpath(genpath(fullfile(my_root_position, 'external', 'skeletonization'))) ;
 addpath(genpath(fullfile(my_root_position, 'external', 'kmeans_varpar')));
 addpath('external')
+run external/cnn-finetune/dependencies/vlfeat/toolbox/vl_setup.m
 
 % compile the random forest classifier
 random_forest_path = fullfile('external', 'RF_Class_C');
@@ -60,7 +61,6 @@ addpath(random_forest_path);
 markSchmidt_code_path = fullfile('external', 'markSchmidt');
 addpath(markSchmidt_code_path);
 addpath(genpath(markSchmidt_code_path));
-
 
 % CNN fine tuning
 cnn_finetuning_library = fullfile('external', 'cnn-finetune');
