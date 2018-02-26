@@ -16,12 +16,19 @@ results_path = fullfile(pwd, 'results', database);
 
 % classifier
 classifier = 'cnn';
-
-% image source
-%image_source = 'optic-disc';
-%image_source = 'full-image';
-image_source = 'full-image-without-onh';
+%classifier = 'logistic-regression';
 
 % features
 % (if classifier is cnn, this value will be ignored)
-features = 'transferred-features';
+%features = 'transferred-features';
+features = 'bohf';
+%features = 'combined';
+
+% image source
+image_source = 'optic-disc';
+%image_source = 'full-image';
+%image_source = 'full-image-without-onh';
+
+% type of feature
+type_of_feature = 'features';
+%type_of_feature = 'prob';

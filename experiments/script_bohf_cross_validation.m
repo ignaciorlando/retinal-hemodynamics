@@ -261,7 +261,7 @@ fprintf('Acc = %d\n', sum(y_hat == labels)/length(y_hat));
 all_scores = scores;
 % create a tag for the experiment
 if add_cnn_features
-    output_tag = strcat('bohf-', classifier, '-', cnn_features, '-', type_of_feature);
+    output_tag = strcat('combined-', classifier, '-', cnn_features, '-', type_of_feature);
 else
     output_tag = strcat('bohf-', classifier);
 end
