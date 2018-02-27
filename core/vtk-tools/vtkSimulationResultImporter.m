@@ -140,7 +140,9 @@ for ci = 1 : size(polydata.Cells,1);
         end;    
         current_stat = current_stat + 1;
     end;
-    % If the cell is a vessel segment
+    % If the cell contains only two points, it is taken into consideration
+    % by the terminal or bifurcations, it does not count.
+    if (numel(CellI)==2); continue; end;
     vessel = nan(numel(CellI)-2,HDidx.mask);
     for p = 1 : numel(CellI)-2;
         % It starts in the second pixel and ends one before the last to
@@ -157,4 +159,3 @@ for ci = 1 : size(polydata.Cells,1);
 end;
 
 end
-

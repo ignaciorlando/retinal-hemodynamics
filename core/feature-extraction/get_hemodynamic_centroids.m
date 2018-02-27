@@ -8,7 +8,9 @@ function [ centroids ] = get_hemodynamic_centroids( root_folder, feature_maps_fi
     % identify different classes in the labels vector
     unique_labels = unique(labels);
     % identify the number of hemodynamic features
+    tic
     loaded_file = load(fullfile(root_folder, feature_maps_filenames{1}));
+    toc
     % prepare an array of the useful features
     to_preserve = ones(size(loaded_file.sol, 3), 1);
     to_preserve(HDidx.mask) = 0;
@@ -38,22 +40,17 @@ function [ centroids ] = get_hemodynamic_centroids( root_folder, feature_maps_fi
         for j = 1 : length(current_feature_maps_filenames)
             
             % get current feature map
+            tic
             current_feature_map = load(fullfile(root_folder, current_feature_maps_filenames{j}));
-            % use the fifth coordinate to identify the POIs
-            to_mask = current_feature_map.sol(:,:,HDidx.mask) > 1;
-            
-            % remove useless variables from current_feature_map
-            current_feature_map.sol = current_feature_map.sol(:,:,to_preserve);
-            
-            % initialize the current design matrix
-            current_X = zeros(length(find(to_mask(:))), n_features);
-            % and collect all the features
-            for f = 1 : n_features
-                % get current feature
-                current_feature_map_f = current_feature_map.sol(:,:,f);
-                % add it to the design matrix
-                current_X(:,f) = current_feature_map_f(to_mask);
-            end
+            toc
+
+            % get the average parameters in the segments
+            tic
+            sol_c_mean = extract_statistic_from_sol_condense(current_feature_map.sol_condense, current_feature_map.HDidx, 'mean');
+            toc
+            sol_c_mean = cat(1, sol_c_mean(sol_c_mean(:,8)<0,:), sol_c_mean(sol_c_mean(:,8)>1,:));
+            sol_c_mean = sol_c_mean(:,to_preserve);
+            current_X = sol_c_mean;
             
             % normalize using mean and standard deviation
             current_mean = mean(current_X);

@@ -27,24 +27,12 @@ function features = extract_bag_of_hemodynamic_features( root_folder, feature_ma
         to_preserve(HDidx.mask) = 0;
         to_preserve(HDidx.r) = 0;
         to_preserve = logical(to_preserve);
-        % use the fifth coordinate to identify the POIs
-        to_mask = current_feature_map.sol(:,:,HDidx.mask) > 1;
-        % remove useless features
-        current_feature_map.sol = current_feature_map.sol(:,:,to_preserve);
         
-        if verbosity
-            fprintf(['Extracting features from ', feature_maps_filenames{j}, '\n']);
-        end
-        
-        % initialize the matrix of features
-        X = zeros(length(find(to_mask(:))), n_features);
-        % for each feature...
-        for f = 1 : n_features
-            % get current feature
-            f_feature_map = current_feature_map.sol(:,:,f);
-            % remove the elements with 0 values
-            X(:,f) = f_feature_map(to_mask);
-        end
+        % get the average parameters in the segments
+        sol_c_mean = extract_statistic_from_sol_condense(current_feature_map.sol_condense, current_feature_map.HDidx, 'mean');
+        sol_c_mean = cat(1, sol_c_mean(sol_c_mean(:,8)<0,:), sol_c_mean(sol_c_mean(:,8)>1,:));
+        sol_c_mean = sol_c_mean(:,to_preserve);
+        X = sol_c_mean;
         % normalize by mean and standard deviation
         current_mean = mean(X);
         current_std = std(X);

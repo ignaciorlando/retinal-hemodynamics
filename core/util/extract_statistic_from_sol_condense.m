@@ -1,4 +1,4 @@
-function [ sol_c ] = extract_statistic_from_sol_condense( sol_condense, Size, HDidx, statid )
+function [ sol_c ] = extract_statistic_from_sol_condense( sol_condense, HDidx, statid )
 %EXTRACT_STATISTIC_FROM_SOL_CONDENSE Retrieves an array with the statistic.
 % Retrieves an array of the desire size in the first dimension, one second 
 % dimension and the number of variables (HDidx.mask) in the third dimension
@@ -6,7 +6,6 @@ function [ sol_c ] = extract_statistic_from_sol_condense( sol_condense, Size, HD
 %
 % Parameters:
 % sol_condense: The condense solution.
-% size:         The size of the first dimension of the returned array. 
 % HDidx:        The indexes of the variables.
 % statid:       The statistic identifier to be extracted from the condense
 %               solution argument
@@ -16,19 +15,16 @@ function [ sol_c ] = extract_statistic_from_sol_condense( sol_condense, Size, HD
 % containing the specified variables statistic.
 %
 
-if (Size < size(sol_condense,1));
-    error('The specified size is smaller than the sol_condense number of elements. Can not continue.')
-end;
-if (~isfield(sol_condense{1,1},statid));
+if (~isfield(sol_condense{1,1},statid))
     error('The specified statid is not a fieldname of the staitsitc structures stored in sol_condense. Can not continue.')
-end;
+end
 
-sol_c = nan(Size,1,HDidx.mask);
+sol_c = nan(size(sol_condense,1),HDidx.mask);
 
-for i = 1 : size(sol_condense,1);
-    for var = 1 : HDidx.mask;
-        sol_c(i,1,var) = getfield(sol_condense{i,var}, statid);
-    end;
-end;
+for i = 1 : size(sol_condense,1)
+    for var = 1 : HDidx.mask
+        sol_c(i,var) = getfield(sol_condense{i,var}, statid);
+    end
+end
 
 end
