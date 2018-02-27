@@ -1,5 +1,5 @@
 
-function [Gout] = initialize_graph_from_skeleton(tree_ids, root_pixels)
+function [Gout] = initialize_graph_from_skeleton(tree_ids, root_pixels, od_segm)
 
     % threshold the ids to get the skeleton
     skel = tree_ids > 0;
@@ -7,10 +7,31 @@ function [Gout] = initialize_graph_from_skeleton(tree_ids, root_pixels)
     % identify end and branching points
     intersecting_pts = find_skel_intersection_2(skel);
 
+    % identify the centroid of the optic disc
+    s = regionprops(od_segm, 'centroid');
+    od_centroid = cat(1, s.Centroid);
     % recover root labels
     root_labels = zeros(size(skel));
     for i = 1 : root_pixels.NumObjects
-        root_labels(root_pixels.PixelIdxList{i}) = unique(tree_ids(root_pixels.PixelIdxList{i}));
+        current_label = unique(tree_ids(root_pixels.PixelIdxList{i}));
+        if ismember(current_label, root_labels(:))
+            % identify current root position
+            [current_label_sub_i, current_label_sub_j] = ind2sub(size(od_segm), root_pixels.PixelIdxList{i});
+            current_pos = [current_label_sub_i, current_label_sub_j];
+            % identify the other label position
+            [other_label_sub_i, other_label_sub_j] = ind2sub(size(od_segm), find(root_labels==current_label));
+            other_pos = [other_label_sub_i, other_label_sub_j];
+            % compute the distances to the centroid
+            avg_dist_current = mean(norm(current_pos - od_centroid));
+            avg_dist_other = mean(norm(other_pos - od_centroid));
+            if avg_dist_current < avg_dist_other
+                root_labels(root_labels==current_label) = 0;
+                root_labels(root_pixels.PixelIdxList{i}) = current_label;
+            end
+        else
+            root_labels(root_pixels.PixelIdxList{i}) = current_label;
+        end
+        
     end
     
     % Generate only branching points
@@ -155,6 +176,9 @@ function [Gout] = initialize_graph_from_skeleton(tree_ids, root_pixels)
 
     end;
 
+    % remove unreachable roots from the graph
+    roots(roots==0) = [];
+    
     % assign information to the graph structure
     Gout.node = node;
     Gout.link = link;
