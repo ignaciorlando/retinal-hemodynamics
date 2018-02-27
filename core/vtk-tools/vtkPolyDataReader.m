@@ -16,6 +16,7 @@ if(fid < 0);
     fprintf('Error::vtkPolyDataReader: Could not open file %s\n',file);
     return;
 end;
+CellDataArrays   = {};
 
 line               = fgetl(fid);
 info.Filename      = file;
