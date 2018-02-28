@@ -1,4 +1,4 @@
-function [ centroids ] = get_hemodynamic_centroids( root_folder, feature_maps_filenames, labels, k )
+function [ centroids ] = get_hemodynamic_centroids( root_folder, feature_maps_filenames, labels, k, pois )
 %GET_HEMODYNAMIC_CENTROIDS Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -8,11 +8,9 @@ function [ centroids ] = get_hemodynamic_centroids( root_folder, feature_maps_fi
     % identify different classes in the labels vector
     unique_labels = unique(labels);
     % identify the number of hemodynamic features
-    tic
-    loaded_file = load(fullfile(root_folder, feature_maps_filenames{1}));
-    toc
+    loaded_file = load(fullfile(root_folder, feature_maps_filenames{1}), 'sol_condense', 'HDidx');
     % prepare an array of the useful features
-    to_preserve = ones(size(loaded_file.sol, 3), 1);
+    to_preserve = ones(size(loaded_file.sol_condense, 2), 1);
     to_preserve(HDidx.mask) = 0;
     to_preserve(HDidx.r) = 0;
     to_preserve = logical(to_preserve);
@@ -40,17 +38,20 @@ function [ centroids ] = get_hemodynamic_centroids( root_folder, feature_maps_fi
         for j = 1 : length(current_feature_maps_filenames)
             
             % get current feature map
-            tic
-            current_feature_map = load(fullfile(root_folder, current_feature_maps_filenames{j}));
-            toc
+            current_feature_map = load(fullfile(root_folder, current_feature_maps_filenames{j}), 'sol_condense', 'HDidx');
 
-            % get the average parameters in the segments
-            tic
+            % get the parameters in the pois
             sol_c_mean = extract_statistic_from_sol_condense(current_feature_map.sol_condense, current_feature_map.HDidx, 'mean');
-            toc
-            sol_c_mean = cat(1, sol_c_mean(sol_c_mean(:,8)<0,:), sol_c_mean(sol_c_mean(:,8)>1,:));
-            sol_c_mean = sol_c_mean(:,to_preserve);
-            current_X = sol_c_mean;
+            current_X = [];
+            for p = 1 : length(pois)
+                if pois(p)==-1
+                    current_sol = sol_c_mean(sol_c_mean(:,8)<0,:);
+                else
+                    current_sol = sol_c_mean(sol_c_mean(:,8) == pois(p),:);
+                end
+                current_sol = current_sol(:,to_preserve);
+                current_X = cat(1, current_X, current_sol);
+            end
             
             % normalize using mean and standard deviation
             current_mean = mean(current_X);

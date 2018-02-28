@@ -113,7 +113,7 @@ for i = 1 : data_partition.NumTestSets
         
         % train the bag of hemodynamic features extractor
         %disp('Identifying centroids');
-        centroids = get_hemodynamic_centroids( simulations_path, training_samples, training_labels, k );
+        centroids = get_hemodynamic_centroids( simulations_path, training_samples, training_labels, k, pois );
 
         if any(isnan(centroids(:)))
             disp('Skipping this k because it generates unvalid clusters');
@@ -122,9 +122,9 @@ for i = 1 : data_partition.NumTestSets
         
         % compute features for the training set based on these centroids
         %disp('Extracting features on the training set');
-        training_features = extract_bag_of_hemodynamic_features( simulations_path, training_samples, centroids, '', false );
+        training_features = extract_bag_of_hemodynamic_features( simulations_path, training_samples, centroids, '', pois, false );
         %disp('Extracting features on the validation set');
-        validation_features = extract_bag_of_hemodynamic_features( simulations_path, validation_samples, centroids, '', false );
+        validation_features = extract_bag_of_hemodynamic_features( simulations_path, validation_samples, centroids, '', pois, false );
         
         % compact all the training features
         %disp('Collecting all the training features within a single design matrix X');
@@ -202,7 +202,7 @@ for i = 1 : data_partition.NumTestSets
     disp(['Best model for k=', num2str(k_best), '(', validation_metric, '=', num2str(best_val_performance), ')']);
         
     %disp('Extracting features on the test set');
-    test_features = extract_bag_of_hemodynamic_features( simulations_path, test_samples, model.centroids, '', false );
+    test_features = extract_bag_of_hemodynamic_features( simulations_path, test_samples, model.centroids, '', pois, false );
     
     % normalize all the test features
     X_test = compact_features(test_features);
@@ -263,7 +263,7 @@ all_scores = scores;
 if add_cnn_features
     output_tag = strcat('combined-', classifier, '-', cnn_features, '-', type_of_feature);
 else
-    output_tag = strcat('bohf-', classifier);
+    output_tag = strcat('bohf-', classifier, '-', mat2str(pois));
 end
 % update the output path
 output_data_path = fullfile(output_data_path, database, output_tag);

@@ -5,7 +5,7 @@ function model = train_logistic_regression_classifier(X, training_labels, X_val,
     X = cat(2, ones(size(X,1), 1), X);
     
     % initialize lambda values to analyze
-    lambda_values = 10.^(-10:10);
+    lambda_values = 10.^(-3:5);
 
     % initialize a matrix of qualities over validation
     qualities_on_validation = zeros(length(lambda_values), 1);
@@ -47,7 +47,13 @@ function model = train_logistic_regression_classifier(X, training_labels, X_val,
     end
     
     % retrieve the higher quality value on the validation set
-    [highest_performance, lambda_ind] = max(qualities_on_validation(:));
+    [highest_performance, ~] = max(qualities_on_validation(:));
+    % get the indices of the highest performance
+    idx = find(qualities_on_validation(:) == highest_performance);
+    % use the last one so that we ensure the maximum regularization
+    % parameter possible
+    lambda_ind = idx(end);
+    
     %fprintf('    HIGHEST PERFORMANCE:\n    lambda=%d   AUC=%d\n', lambda_values(lambda_ind), highest_performance);
     
     % assign to model the best that we found

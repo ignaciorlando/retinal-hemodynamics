@@ -1,4 +1,4 @@
-function features = extract_bag_of_hemodynamic_features( root_folder, feature_maps_filenames, centroids, output_path, verbosity )
+function features = extract_bag_of_hemodynamic_features( root_folder, feature_maps_filenames, centroids, output_path, pois, verbosity )
 %EXTRACT_BAG_OF_HEMODYNAMIC_FEATURES Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -21,22 +21,29 @@ function features = extract_bag_of_hemodynamic_features( root_folder, feature_ma
     for j = 1 : length(feature_maps_filenames)
         
         % load the feature map
-        current_feature_map = load(fullfile(root_folder, feature_maps_filenames{j}));
+        current_feature_map = load(fullfile(root_folder, feature_maps_filenames{j}), 'sol_condense', 'HDidx');
         % prepare an array of the useful features
-        to_preserve = ones(size(current_feature_map.sol, 3), 1);
+        to_preserve = ones(size(current_feature_map.sol_condense, 2), 1);
         to_preserve(HDidx.mask) = 0;
         to_preserve(HDidx.r) = 0;
         to_preserve = logical(to_preserve);
         
-        % get the average parameters in the segments
+        % get the parameters in the pois
         sol_c_mean = extract_statistic_from_sol_condense(current_feature_map.sol_condense, current_feature_map.HDidx, 'mean');
-        sol_c_mean = cat(1, sol_c_mean(sol_c_mean(:,8)<0,:), sol_c_mean(sol_c_mean(:,8)>1,:));
-        sol_c_mean = sol_c_mean(:,to_preserve);
-        X = sol_c_mean;
+        X = [];
+        for p = 1 : length(pois)
+            if pois(p)==-1
+                current_sol = sol_c_mean(sol_c_mean(:,8)<0,:);
+            else
+                current_sol = sol_c_mean(sol_c_mean(:,8) == pois(p),:);
+            end
+            current_sol = current_sol(:,to_preserve);
+            X = cat(1, X, current_sol);
+        end
         % normalize by mean and standard deviation
         current_mean = mean(X);
         current_std = std(X);
-        X = bsxfun(@rdivide, bsxfun(@minus, X, current_mean), current_std);
+        X = bsxfun(@rdivide, bsxfun(@minus, X, current_mean), current_std  + eps);
         
         % compute the distances between each feature and the centroid
         distances = zeros(size(X,1), k);
