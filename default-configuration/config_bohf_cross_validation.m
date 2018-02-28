@@ -23,11 +23,19 @@ classifier = 'logistic-regression';
 %validation_metric = 'auc';
 validation_metric = 'acc';
 
+% points of interest (pois)
+%pois = [-1]; % only segments
+%pois = [2]; % only terminals
+%pois = [3]; % only bifurcations
+%pois = [-1, 2, 3]; % segments, terminals and bifurcations
+pois = [2, 3]; % terminals and bifurcations
+
 % add cnn based features
 add_cnn_features = false;
-%cnn_features = 'transferred-features-images-onh';
+%add_cnn_features = true;
+cnn_features = 'transferred-features-images-onh';
 %type_of_feature = 'prob';
-%type_of_feature = 'features';
+type_of_feature = 'features';
 
 % feature extraction -----------
 
