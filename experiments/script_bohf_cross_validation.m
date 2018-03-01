@@ -129,20 +129,38 @@ for i = 1 : data_partition.NumTestSets
         % compact all the training features
         %disp('Collecting all the training features within a single design matrix X');
         X = compact_features(training_features);
-        if add_cnn_features
-            X = cat(2, X, retrieve_cnn_features( cnn_features_path, training_cnn_samples ));
-        end 
         % normalize the features
         training_mean = mean(X);
         training_std = std(X) + eps;
         X = bsxfun(@rdivide, bsxfun(@minus, X, training_mean), training_std);
+        if add_cnn_features 
+            % trace normalize the features
+            training_trace = trace(X * X');
+            X = X / training_trace;
+            % repeat the process for the CNN features
+            X_cnn = retrieve_cnn_features( cnn_features_path, training_cnn_samples );
+            training_mean_cnn = mean(X_cnn);
+            training_std_cnn = std(X_cnn) + eps;
+            X_cnn = bsxfun(@rdivide, bsxfun(@minus, X_cnn, training_mean_cnn), training_std_cnn);
+            training_trace_cnn = trace(X_cnn * X_cnn');
+            X_cnn = X_cnn / training_trace_cnn;
+            % concatenate all
+            X = cat(2, X, X_cnn);
+        end 
         
         % normalize all the validation features
         X_val = compact_features(validation_features);
-        if add_cnn_features
-            X_val = cat(2, X_val, retrieve_cnn_features( cnn_features_path, validation_cnn_samples ));
-        end
         X_val = bsxfun(@rdivide, bsxfun(@minus, X_val, training_mean), training_std);
+        if add_cnn_features
+            % trace normalize the features
+            X_val = X_val / training_trace;
+            % repeat the process for the CNN features
+            X_val_cnn = retrieve_cnn_features( cnn_features_path, validation_cnn_samples );
+            X_val_cnn = bsxfun(@rdivide, bsxfun(@minus, X_val_cnn, training_mean_cnn), training_std_cnn);
+            X_val_cnn = X_val_cnn / training_trace_cnn;
+            % concatenate all
+            X_val = cat(2, X_val, X_val_cnn);
+        end
         
         % train a classifier
         switch classifier
@@ -154,6 +172,12 @@ for i = 1 : data_partition.NumTestSets
                 model.training_mean = training_mean;
                 model.training_std = training_std;
                 model.centroids = centroids;
+                if add_cnn_features
+                    model.training_mean_cnn = training_mean_cnn;
+                    model.training_std_cnn = training_std_cnn;
+                    model.training_trace = training_trace;
+                    model.training_trace_cnn = training_trace_cnn;
+                end
                 % evaluate it
                 [val_scores, val_yhat] = classRF_predict_probabilities(X_val, model);
 
@@ -164,6 +188,12 @@ for i = 1 : data_partition.NumTestSets
                 model.training_mean = training_mean;
                 model.training_std = training_std;
                 model.centroids = centroids;
+                if add_cnn_features
+                    model.training_mean_cnn = training_mean_cnn;
+                    model.training_std_cnn = training_std_cnn;
+                    model.training_trace = training_trace;
+                    model.training_trace_cnn = training_trace_cnn;
+                end
                 % evaluate it
                 [val_scores, val_yhat] = predict_with_logistic_regression(X_val, model);
                 
@@ -206,10 +236,16 @@ for i = 1 : data_partition.NumTestSets
     
     % normalize all the test features
     X_test = compact_features(test_features);
-    if add_cnn_features
-        X_test = cat(2, X_test, retrieve_cnn_features( cnn_features_path, test_cnn_samples ));
-    end 
     X_test = bsxfun(@rdivide, bsxfun(@minus, X_test, model.training_mean), model.training_std);
+    if add_cnn_features
+        X_test = X_test / model.training_trace;
+        X_test_cnn = retrieve_cnn_features( cnn_features_path, test_cnn_samples );
+        X_test_cnn = bsxfun(@rdivide, bsxfun(@minus, X_test_cnn, model.training_mean_cnn), model.training_std_cnn);
+        X_test_cnn = X_test_cnn / model.training_trace_cnn;
+        % concatenate all
+        X_test = cat(2, X_test, X_test_cnn);
+    end 
+    
     
     % evaluate the classifier
     switch classifier
