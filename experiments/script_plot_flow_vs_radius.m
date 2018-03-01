@@ -34,17 +34,24 @@ if (flag_term_segm);
 else
     % Loads the solution files one by one and rerieve the vessel segments!
     scidx     = 2; % Scenario index
-    filenames = dir(fullfile(input_folder, strcat('/hemodynamic-simulation/*SC',num2str(scidx),'*.mat')));
-    filenames = {filenames.name};
+    filenamesSC2 = dir(fullfile(input_folder, strcat('/hemodynamic-simulation/*SC',num2str(scidx),'*.mat')));
+    filenamesSC2 = {filenamesSC2.name};
+    scidx     = 1; % Scenario index
+    filenamesSC1 = dir(fullfile(input_folder, strcat('/hemodynamic-simulation/*SC',num2str(scidx),'*.mat')));
+    filenamesSC1 = {filenamesSC1.name};
 
     Sols  = cell(length(filenames),1);
     Times = cell(length(filenames),1);
     for p = 1 : length(filenames)
-        current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenames{p});    
-        load(current_filename,'sol_condense');
+        if (labels(p)==0);
+            current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenamesSC2{p});    
+            load(current_filename,'sol_condense');
+        else
+            current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenamesSC1{p});    
+            load(current_filename,'sol_condense');
+        end;
     
-        sol_c  = extract_statistic_from_sol_condense( sol_condense, numel(sol_condense), HDidx, 'mean' );
-        sol_c = reshape(sol_c,[size(sol_c,1),size(sol_c,3)]);
+        sol_c  = extract_statistic_from_sol_condense( sol_condense, HDidx, 'mean' );
         sol_c = sol_c(sol_c(:,HDidx.mask)<0,:);
         Sols(p) = {sol_c};
         
