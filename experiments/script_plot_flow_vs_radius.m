@@ -41,19 +41,13 @@ else
     Times = cell(length(filenames),1);
     for p = 1 : length(filenames)
         current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenames{p});    
-        load(current_filename);
-
-        [I,J] = find(~isnan(sol(:,:,HDidx.mask)) & sol(:,:,HDidx.mask)<0);
-        sol_  = nan(numel(I),HDidx.mask);
-        for i = 1 : numel(I);
-            sol_(i,:) = sol(I(i),J(i),:);
-        end;
-        nSegments = abs(min(sol_(:,HDidx.mask)));
-        sol__  = nan(nSegments,HDidx.mask);
-        for i = 1 : nSegments;
-            sol__(i,:) = mean(sol_(sol_(:,HDidx.mask)==-i,:),1);
-        end;    
-        Sols(p) = {sol__};
+        load(current_filename,'sol_condense');
+    
+        sol_c  = extract_statistic_from_sol_condense( sol_condense, numel(sol_condense), HDidx, 'mean' );
+        sol_c = reshape(sol_c,[size(sol_c,1),size(sol_c,3)]);
+        sol_c = sol_c(sol_c(:,HDidx.mask)<0,:);
+        Sols(p) = {sol_c};
+        
     end;
 end;
 
@@ -124,6 +118,6 @@ else
 end;
 xlabel('Mean radius per segment [cm]','interpreter','latex','fontsize',16);
 ylabel('Flow per segment [ml/s]','interpreter','latex','fontsize',16);
-legend(gca,{'Healthy','Glaucomatous'},'Interpreter','LaTeX','FontSize',16,'Location','NorthWest');
+legend(gca,{'Glaucomatous','Healthy'},'Interpreter','LaTeX','FontSize',16,'Location','NorthWest');
 
 
