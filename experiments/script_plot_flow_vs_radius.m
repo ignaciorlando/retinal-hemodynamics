@@ -33,21 +33,21 @@ if (flag_term_segm);
     scPidx = 1; % Scenario P_0 index
 else
     % Loads the solution files one by one and rerieve the vessel segments!
-    scidx     = 2; % Scenario index
-    filenamesSC2 = dir(fullfile(input_folder, strcat('/hemodynamic-simulation/*SC',num2str(scidx),'*.mat')));
-    filenamesSC2 = {filenamesSC2.name};
+    scidx     = 3; % Scenario index
+    filenamesSCH = dir(fullfile(input_folder, strcat('/hemodynamic-simulation/*SC',num2str(scidx),'*.mat')));
+    filenamesSCH = {filenamesSCH.name};
     scidx     = 1; % Scenario index
-    filenamesSC1 = dir(fullfile(input_folder, strcat('/hemodynamic-simulation/*SC',num2str(scidx),'*.mat')));
-    filenamesSC1 = {filenamesSC1.name};
+    filenamesSCG = dir(fullfile(input_folder, strcat('/hemodynamic-simulation/*SC',num2str(scidx),'*.mat')));
+    filenamesSCG = {filenamesSCG.name};
 
     Sols  = cell(length(filenames),1);
     Times = cell(length(filenames),1);
     for p = 1 : length(filenames)
         if (labels(p)==0);
-            current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenamesSC2{p});    
+            current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenamesSCH{p});    
             load(current_filename,'sol_condense');
         else
-            current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenamesSC1{p});    
+            current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenamesSCG{p});    
             load(current_filename,'sol_condense');
         end;
     
