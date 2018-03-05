@@ -54,27 +54,36 @@ else
 end;
 
 %% retrieve arteries filenames
-filenames = dir(fullfile(input_folder, 'hemodynamic-simulation','*_SC2_*.mat'));
-filenames = {filenames.name};
+scidx     = 3; % Scenario index
+filenamesSCH = dir(fullfile(input_folder, strcat('/hemodynamic-simulation/*SC',num2str(scidx),'*.mat')));
+filenamesSCH = {filenamesSCH.name};
+scidx     = 1; % Scenario index
+filenamesSCG = dir(fullfile(input_folder, strcat('/hemodynamic-simulation/*SC',num2str(scidx),'*.mat')));
+filenamesSCG = {filenamesSCG.name};
 
 %% Reads all condense simulation outputs
 Labels = nan(0,1);
 NSegs   = nan(0,1);
 Ages   = nan(0,1);
 Sexes  = nan(0,1);
-Sol_c  = nan(0,1,HDidx.mask);
+Sol_c  = nan(0,HDidx.mask);
 for i = 1 : length(filenames)
-    current_filename       = fullfile(input_folder,'hemodynamic-simulation' ,filenames{i});
-    load(current_filename,'sol_condense');
+    if (labels(i)==0);
+        current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenamesSCH{i});    
+        load(current_filename,'sol_condense');
+    else
+        current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenamesSCG{i});    
+        load(current_filename,'sol_condense');
+    end;
     
-    sol_c  = extract_statistic_from_sol_condense( sol_condense, numel(sol_condense), HDidx, 'mean' );
+    sol_c  = extract_statistic_from_sol_condense( sol_condense, HDidx, 'mean' );
     
     Labels = [Labels; ones(size(sol_c,1),1)*labels(i)];
     Sexes  = [Sexes; ones(size(sol_c,1),1)*SEX_0F_1M(i)];
     Ages   = [Ages; ones(size(sol_c,1),1)*Age(i)];
     Sol_c  = [Sol_c; sol_c];
     
-    NSegs  = [NSegs; numel(unique( sol_c(sol_c(:, 1, HDidx.mask) < 0 ,1,HDidx.mask)))];
+    NSegs  = [NSegs; numel(unique( sol_c(sol_c(:, HDidx.mask) < 0 ,HDidx.mask)))];
     
 end;
 
@@ -82,7 +91,7 @@ end;
 stat_nseg_pat_a = statistics(NSegs);
 stat_nseg_pat_h = statistics(NSegs(labels==0));
 stat_nseg_pat_g = statistics(NSegs(labels==1));
-p_vart_pat_nseg         = vartestn(NSegs, labels,'TestType','LeveneQuadratic','Display','on');
+p_vart_pat_nseg = vartestn(NSegs, labels,'TestType','LeveneQuadratic','Display','on');
 [h_sw_nseg_pat_all, p_sw_nseg_pat_all, sw_stat_nseg_pat_all] = swtest(NSegs, statisticalSignificance);
 [h_sw_nseg_pat_h, p_sw_nseg_pat_h, sw_stat_nseg_pat_h] = swtest(NSegs(labels==0), statisticalSignificance);
 [h_sw_nseg_pat_g, p_sw_nseg_pat_g, sw_stat_nseg_pat_g] = swtest(NSegs(labels==1), statisticalSignificance);
@@ -97,14 +106,13 @@ end;
 %--------------------------------------------------------------------------
 
 
-% selected_samples = (Sol_c(:, 1, HDidx.mask) == 2) & (Sol_c(:, 1, HDidx.r) <= 40*1e-4)& (Sol_c(:, 1, HDidx.r) >= 30*1e-4);     % Only Terminals
-% selected_samples = Sol_c(:, 1, HDidx.mask) == 2;     % Only Terminals
-% selected_samples = Sol_c(:, 1, HDidx.mask) == 3;     % Only Bifurcations
-% selected_samples = Sol_c(:, 1, HDidx.mask) < 0;     % Only Segments
-% selected_samples = Sol_c(:, 1, HDidx.mask) > 0;       % Only Terminals And bifurcations
- selected_samples = ~isnan(Sol_c(:, 1, HDidx.mask));  % All: terminals, bifurcations and segments
-Sol_c_BT         = Sol_c(selected_samples, 1, :);
-Sol_c_BT         = reshape(Sol_c_BT, size(Sol_c_BT,1),size(Sol_c_BT,3));
+% selected_samples = (Sol_c(:, HDidx.mask) == 2) & (Sol_c(:, HDidx.r) <= 40*1e-4)& (Sol_c(:, HDidx.r) >= 30*1e-4);     % Only Terminals
+% selected_samples = Sol_c(:, HDidx.mask) == 2;    % Only Terminals
+% selected_samples = Sol_c(:, HDidx.mask) == 3;    % Only Bifurcations
+% selected_samples = Sol_c(:, HDidx.mask) < 0;     % Only Segments
+% selected_samples = Sol_c(:,  HDidx.mask) > 0;    % Only Terminals And bifurcations
+ selected_samples = ~isnan(Sol_c(:, HDidx.mask));  % All: terminals, bifurcations and segments
+Sol_c_BT         = Sol_c(selected_samples, :);
 Labels_BT        = Labels(selected_samples);
 Sexes_BT         = Sexes(selected_samples);
 Ages_BT          = Ages(selected_samples);
@@ -137,7 +145,8 @@ idxFRQ = 7;
 % Check correlation between the age and the hemodynamic variables
 [r_age_dpr, p_age_dpr] = corrplot(data(:,[idxAge,idxDpr]), 'type', 'Pearson', 'tail','both', 'testR', 'on' );
 [r_age_vel, p_age_vel] = corrplot(data(:,[idxAge,idxVel]), 'type', 'Pearson', 'tail','both', 'testR', 'on' );
-[r_age_rad, p_age_rad] = corrplot(data(:,[idxRad,idxFRQ]), 'type', 'Pearson', 'tail','both', 'testR', 'on' );
+[r_rad_frq, p_rad_frq] = corrplot(data(:,[idxRad,idxFRQ]), 'type', 'Spearman', 'tail','both', 'testR', 'on' );
+[r_age_rad, p_age_rad] = corrplot(data(:,[idxAge,idxRad]), 'type', 'Pearson', 'tail','both', 'testR', 'on' );
 
 % Check the association among Label_BT and each variable
 [h_sw_age_all, p_sw_age_all, sw_stat_age_all] = swtest(data(:,idxAge), statisticalSignificance);
@@ -207,13 +216,13 @@ mat = [[stat_dp_a.mean, stat_dp_a.std, stat_dp_h.mean, stat_dp_h.std, stat_dp_g.
        [nan, nan, p_mdt_vel, nan, nan, nan];...
        [nan, nan, p_mdt_age, nan, nan, nan];...       
        [nan, nan, p_chi2test_lab_sex, nan, nan, nan];...
-       [nan, nan, r_age_dpr(1,2), p_age_dpr(1,2), nan, nan];...
-       [nan, nan, r_age_vel(1,2), p_age_vel(1,2), nan, nan];...
+       [r_age_dpr(1,2), p_age_dpr(1,2), nan, nan, nan, nan];...
+       [r_age_vel(1,2), p_age_vel(1,2), nan, nan, nan, nan];...
        [stat_rad_a.mean, stat_rad_a.std, stat_rad_h.mean, stat_rad_h.std, stat_rad_g.mean, stat_rad_g.std ];...
        [p_sw_rad_all, nan, p_sw_rad_h, nan, p_sw_rad_g, nan];...
        [nan, nan, p_vart_rad, nan, nan, nan];...
        [nan, nan, p_mdt_rad, nan, nan, nan];...       
-       [nan, nan, r_age_rad(1,2), p_age_rad(1,2), nan, nan];...
+       [r_rad_frq(1,2), p_rad_frq(1,2), nan, nan, nan, nan];...
        ];
    
 mat_pat = [[stat_nseg_pat_a.mean, stat_nseg_pat_a.std, stat_nseg_pat_h.mean, stat_nseg_pat_h.std, stat_nseg_pat_g.mean, stat_nseg_pat_g.std ];...
@@ -232,3 +241,5 @@ mat_pat = [[stat_nseg_pat_a.mean, stat_nseg_pat_a.std, stat_nseg_pat_h.mean, sta
 stat_r_a  = statistics(Sol_c_BT(:,HDidx.r));
 stat_r_h  = statistics(Sol_c_BT(Labels_BT==0,HDidx.r));
 stat_r_g  = statistics(Sol_c_BT(Labels_BT==1,HDidx.r));
+
+close all

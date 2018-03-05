@@ -101,8 +101,8 @@ for p = 1 : n;
         plot(r, y, color,'LineWidth',1);
     end;
 end;
-xlabel('Mean radius per segment [cm]','interpreter','latex','fontsize',16);
-ylabel('Flow per segment [ml/s]','interpreter','latex','fontsize',16);
+xlabel('Mean radius per segment [cm]','interpreter','latex','fontsize',20);
+ylabel('Flow per segment [ml/s]','interpreter','latex','fontsize',20);
 
 % Now approximates one function for each label.
 script_new_figure
@@ -123,8 +123,8 @@ else
     plot(r_l1, y_l1, 'r','LineWidth',1);
     plot(r_l0, y_l0, 'k','LineWidth',1);    
 end;
-xlabel('Mean radius per segment [cm]','interpreter','latex','fontsize',16);
-ylabel('Flow per segment [ml/s]','interpreter','latex','fontsize',16);
-legend(gca,{'Glaucomatous','Healthy'},'Interpreter','LaTeX','FontSize',16,'Location','NorthWest');
+xlabel('Mean radius per segment [cm]','interpreter','latex','fontsize',20);
+ylabel('Flow per segment [ml/s]','interpreter','latex','fontsize',20);
+legend(gca,{'Glaucomatous','Healthy'},'Interpreter','LaTeX','FontSize',20,'Location','NorthWest');
 
 
