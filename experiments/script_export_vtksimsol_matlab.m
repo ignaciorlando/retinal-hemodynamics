@@ -54,6 +54,7 @@ for i = 1 : length(filenames)
             [ sol, sol_condense ] = vtkSimulationResultImporter( input_filename, imgSize(i,:), pixelSpacing(i,:), roots, HDidx );
             
             save(output_filename,'sol','sol_condense','HDidx');
+            
         end;
     end;
-end
+end;

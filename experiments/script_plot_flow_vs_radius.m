@@ -33,27 +33,28 @@ if (flag_term_segm);
     scPidx = 1; % Scenario P_0 index
 else
     % Loads the solution files one by one and rerieve the vessel segments!
-    scidx     = 2; % Scenario index
-    filenames = dir(fullfile(input_folder, strcat('/hemodynamic-simulation/*SC',num2str(scidx),'*.mat')));
-    filenames = {filenames.name};
+    scidx     = 3; % Scenario index
+    filenamesSCH = dir(fullfile(input_folder, strcat('/hemodynamic-simulation/*SC',num2str(scidx),'*.mat')));
+    filenamesSCH = {filenamesSCH.name};
+    scidx     = 1; % Scenario index
+    filenamesSCG = dir(fullfile(input_folder, strcat('/hemodynamic-simulation/*SC',num2str(scidx),'*.mat')));
+    filenamesSCG = {filenamesSCG.name};
 
     Sols  = cell(length(filenames),1);
     Times = cell(length(filenames),1);
     for p = 1 : length(filenames)
-        current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenames{p});    
-        load(current_filename);
-
-        [I,J] = find(~isnan(sol(:,:,HDidx.mask)) & sol(:,:,HDidx.mask)<0);
-        sol_  = nan(numel(I),HDidx.mask);
-        for i = 1 : numel(I);
-            sol_(i,:) = sol(I(i),J(i),:);
+        if (labels(p)==0);
+            current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenamesSCH{p});    
+            load(current_filename,'sol_condense');
+        else
+            current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenamesSCG{p});    
+            load(current_filename,'sol_condense');
         end;
-        nSegments = abs(min(sol_(:,HDidx.mask)));
-        sol__  = nan(nSegments,HDidx.mask);
-        for i = 1 : nSegments;
-            sol__(i,:) = mean(sol_(sol_(:,HDidx.mask)==-i,:),1);
-        end;    
-        Sols(p) = {sol__};
+    
+        sol_c  = extract_statistic_from_sol_condense( sol_condense, HDidx, 'mean' );
+        sol_c = sol_c(sol_c(:,HDidx.mask)<0,:);
+        Sols(p) = {sol_c};
+        
     end;
 end;
 
@@ -100,8 +101,8 @@ for p = 1 : n;
         plot(r, y, color,'LineWidth',1);
     end;
 end;
-xlabel('Mean radius per segment [cm]','interpreter','latex','fontsize',16);
-ylabel('Flow per segment [ml/s]','interpreter','latex','fontsize',16);
+xlabel('Mean radius per segment [cm]','interpreter','latex','fontsize',20);
+ylabel('Flow per segment [ml/s]','interpreter','latex','fontsize',20);
 
 % Now approximates one function for each label.
 script_new_figure
@@ -122,8 +123,8 @@ else
     plot(r_l1, y_l1, 'r','LineWidth',1);
     plot(r_l0, y_l0, 'k','LineWidth',1);    
 end;
-xlabel('Mean radius per segment [cm]','interpreter','latex','fontsize',16);
-ylabel('Flow per segment [ml/s]','interpreter','latex','fontsize',16);
-legend(gca,{'Healthy','Glaucomatous'},'Interpreter','LaTeX','FontSize',16,'Location','NorthWest');
+xlabel('Mean radius per segment [cm]','interpreter','latex','fontsize',20);
+ylabel('Flow per segment [ml/s]','interpreter','latex','fontsize',20);
+legend(gca,{'Glaucomatous','Healthy'},'Interpreter','LaTeX','FontSize',20,'Location','NorthWest');
 
 
