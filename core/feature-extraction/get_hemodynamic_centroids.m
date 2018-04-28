@@ -1,6 +1,10 @@
-function [ centroids ] = get_hemodynamic_centroids( root_folder, feature_maps_filenames, labels, k, pois )
+function [ centroids ] = get_hemodynamic_centroids( root_folder, feature_maps_filenames, labels, k, pois, use_only_radius )
 %GET_HEMODYNAMIC_CENTROIDS Summary of this function goes here
 %   Detailed explanation goes here
+
+    if nargin < 6
+        use_only_radius = false;
+    end
 
     % call to config_hemo_var_idx to get the ids of the masks
     config_hemo_var_idx;
@@ -10,9 +14,14 @@ function [ centroids ] = get_hemodynamic_centroids( root_folder, feature_maps_fi
     % identify the number of hemodynamic features
     loaded_file = load(fullfile(root_folder, feature_maps_filenames{1}), 'sol_condense', 'HDidx');
     % prepare an array of the useful features
-    to_preserve = ones(size(loaded_file.sol_condense, 2), 1);
-    to_preserve(HDidx.mask) = 0;
-    to_preserve(HDidx.r) = 0;
+    if use_only_radius
+        to_preserve = zeros(size(loaded_file.sol_condense, 2), 1);
+        to_preserve(HDidx.r) = 1;
+    else
+        to_preserve = ones(size(loaded_file.sol_condense, 2), 1);
+        to_preserve(HDidx.mask) = 0;
+        to_preserve(HDidx.r) = 0;
+    end
     to_preserve = logical(to_preserve);
     % identify the number of hemodynamic features
     n_features = length(find(to_preserve));

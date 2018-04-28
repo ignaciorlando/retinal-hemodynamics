@@ -33,9 +33,13 @@ pois = [2, 3]; % terminals and bifurcations
 % add cnn based features
 add_cnn_features = false;
 %add_cnn_features = true;
-cnn_features = 'transferred-features-images-onh';
+%cnn_features = 'transferred-features-images-onh';
 %type_of_feature = 'prob';
-type_of_feature = 'features';
+%type_of_feature = 'features';
+
+% indicate whether you want to only use the radius or not
+%use_only_radius = false;
+use_only_radius = true;
 
 % feature extraction -----------
 

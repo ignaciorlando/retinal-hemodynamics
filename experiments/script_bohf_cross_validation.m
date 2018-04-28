@@ -113,7 +113,7 @@ for i = 1 : data_partition.NumTestSets
         
         % train the bag of hemodynamic features extractor
         %disp('Identifying centroids');
-        centroids = get_hemodynamic_centroids( simulations_path, training_samples, training_labels, k, pois );
+        centroids = get_hemodynamic_centroids( simulations_path, training_samples, training_labels, k, pois, use_only_radius );
 
         if any(isnan(centroids(:)))
             disp('Skipping this k because it generates unvalid clusters');
@@ -122,9 +122,9 @@ for i = 1 : data_partition.NumTestSets
         
         % compute features for the training set based on these centroids
         %disp('Extracting features on the training set');
-        training_features = extract_bag_of_hemodynamic_features( simulations_path, training_samples, centroids, '', pois, false );
+        training_features = extract_bag_of_hemodynamic_features( simulations_path, training_samples, centroids, '', pois, false, use_only_radius );
         %disp('Extracting features on the validation set');
-        validation_features = extract_bag_of_hemodynamic_features( simulations_path, validation_samples, centroids, '', pois, false );
+        validation_features = extract_bag_of_hemodynamic_features( simulations_path, validation_samples, centroids, '', pois, false, use_only_radius );
         
         % compact all the training features
         %disp('Collecting all the training features within a single design matrix X');
@@ -232,7 +232,7 @@ for i = 1 : data_partition.NumTestSets
     disp(['Best model for k=', num2str(k_best), '(', validation_metric, '=', num2str(best_val_performance), ')']);
         
     %disp('Extracting features on the test set');
-    test_features = extract_bag_of_hemodynamic_features( simulations_path, test_samples, model.centroids, '', pois, false );
+    test_features = extract_bag_of_hemodynamic_features( simulations_path, test_samples, model.centroids, '', pois, false, use_only_radius );
     
     % normalize all the test features
     X_test = compact_features(test_features);

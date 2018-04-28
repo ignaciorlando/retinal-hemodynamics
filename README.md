@@ -1,7 +1,7 @@
 # Simulation of retinal hemodynamics
 
-This code corresponds to our project on simulation of the retinal hemodynamics.
-
+This code corresponds to our MICCAI 2018 paper on retinal hemodynamics simulation. If you use this code, please cite:
+Orlando, JI, Barbosa Breda, J, van Keer, K, Blaschko, MB, Blanco, PJ and Bulant, C. "Towards a glaucoma risk index based on simulated hemodynamics from fundus images". MICCAI 2018.
 
 ## Installation
 
@@ -12,6 +12,8 @@ This code corresponds to our project on simulation of the retinal hemodynamics.
 5. Run ```setup``` in the MATLAB console to add the folder to the path.
 
 > --- **Note** --- If you get an error when compiling Matconvnet, it might be that you don't have libdevjpeg installed in your computer. Run ```sudo apt-get install libjpeg-dev```.
+
+> --- **Note** --- Once the project is setup, you just need to call the script ```setup_add_folders``` to automatically add the project folders to the MATLAB path.
 
 ## Data preparation
 
@@ -101,6 +103,18 @@ The file name follows the encoding: ```<ImageID>_<test|training>_SC<scenarioID>_
 The .mat file contains a variable named ```sol```, which is a 3D matrix of dimensions [width,height,8]. 
 Matrix dimensions represents (1) the radius (in [cm]), (2) the flow (in [ml/s]), (3) the pressure (in [mmHg]), (4) the velocity (in [cm/s]), (5) resistance, (6) Reynolds number, (7) wall shear stress, and (8)
 a mask indicating if the centerline pixel is arterial segment (0), a root (1), a terminal (2) or a bifurcation (3). All the files have NaN values on non-centerline pixels.
+
+### Export simulation results to MATLAB format
+
+```script_export_vtksimsol_matlab```
+
+Use this script to export the results of the simulations to a MATLAB-friendly format. This will also prepare the data for running the experiments using the BoHF.
+
+### Run classification experiment using BoHF
+
+```script_bohf_cross_validation```
+
+This script runs the classification experiment using the BoHF. You need to modify the configuration file ```config_bohf_cross_validation``` accordingly.
 
 ### Perform data analysis
 

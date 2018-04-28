@@ -1,6 +1,10 @@
-function features = extract_bag_of_hemodynamic_features( root_folder, feature_maps_filenames, centroids, output_path, pois, verbosity )
+function features = extract_bag_of_hemodynamic_features( root_folder, feature_maps_filenames, centroids, output_path, pois, verbosity, use_only_radius )
 %EXTRACT_BAG_OF_HEMODYNAMIC_FEATURES Summary of this function goes here
 %   Detailed explanation goes here
+
+    if nargin < 6
+        use_only_radius = false;
+    end
 
     % call to config_hemo_var_idx to get the ids of the masks
     config_hemo_var_idx;
@@ -23,9 +27,14 @@ function features = extract_bag_of_hemodynamic_features( root_folder, feature_ma
         % load the feature map
         current_feature_map = load(fullfile(root_folder, feature_maps_filenames{j}), 'sol_condense', 'HDidx');
         % prepare an array of the useful features
-        to_preserve = ones(size(current_feature_map.sol_condense, 2), 1);
-        to_preserve(HDidx.mask) = 0;
-        to_preserve(HDidx.r) = 0;
+        if use_only_radius
+            to_preserve = zeros(size(current_feature_map.sol_condense, 2), 1);
+            to_preserve(HDidx.r) = 1;
+        else
+            to_preserve = ones(size(current_feature_map.sol_condense, 2), 1);
+            to_preserve(HDidx.mask) = 0;
+            to_preserve(HDidx.r) = 0;
+        end
         to_preserve = logical(to_preserve);
         
         % get the parameters in the pois
