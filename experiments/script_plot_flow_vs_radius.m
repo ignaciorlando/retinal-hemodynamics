@@ -24,38 +24,29 @@ load(strcat(input_folder,'/labels'));
 
 % Flag specifying if the plots are done over the terminals (1) or over the
 % segments (0).
-flag_term_segm = 0;
+% Loads the solution files one by one and rerieve the vessel segments!
+scidx     = 3; % Scenario index
+filenamesSCH = dir(fullfile(input_folder, strcat('/hemodynamic-simulation/*SC',num2str(scidx),'*.mat')));
+filenamesSCH = {filenamesSCH.name};
+scidx     = 1; % Scenario index
+filenamesSCG = dir(fullfile(input_folder, strcat('/hemodynamic-simulation/*SC',num2str(scidx),'*.mat')));
+filenamesSCG = {filenamesSCG.name};
 
-if (flag_term_segm);
-    % Load the solution at the outlets and the times
-    load(strcat(input_folder,'/hemodynamic-simulation/SolutionsAtOutlets'),'Sols');
-    scQidx = 2; % Scenario Q_T index
-    scPidx = 1; % Scenario P_0 index
-else
-    % Loads the solution files one by one and rerieve the vessel segments!
-    scidx     = 3; % Scenario index
-    filenamesSCH = dir(fullfile(input_folder, strcat('/hemodynamic-simulation/*SC',num2str(scidx),'*.mat')));
-    filenamesSCH = {filenamesSCH.name};
-    scidx     = 1; % Scenario index
-    filenamesSCG = dir(fullfile(input_folder, strcat('/hemodynamic-simulation/*SC',num2str(scidx),'*.mat')));
-    filenamesSCG = {filenamesSCG.name};
-
-    Sols  = cell(length(filenames),1);
-    Times = cell(length(filenames),1);
-    for p = 1 : length(filenames)
-        if (labels(p)==0);
-            current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenamesSCH{p});    
-            load(current_filename,'sol_condense');
-        else
-            current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenamesSCG{p});    
-            load(current_filename,'sol_condense');
-        end;
-    
-        sol_c  = extract_statistic_from_sol_condense( sol_condense, HDidx, 'mean' );
-        sol_c = sol_c(sol_c(:,HDidx.mask)<0,:);
-        Sols(p) = {sol_c};
-        
+Sols  = cell(length(filenames),1);
+Times = cell(length(filenames),1);
+for p = 1 : length(filenames)
+    if (labels(p)==0);
+        current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenamesSCH{p});    
+        load(current_filename,'sol_condense');
+    else
+        current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenamesSCG{p});    
+        load(current_filename,'sol_condense');
     end;
+
+    sol_c  = extract_statistic_from_sol_condense( sol_condense, HDidx, 'mean' );
+    sol_c = sol_c(sol_c(:,HDidx.mask)<0,:);
+    Sols(p) = {sol_c};
+
 end;
 
 %% Perform the plot of the data and the approximated function
@@ -70,13 +61,9 @@ q_l1 = [];
 
 script_new_figure
 for p = 1 : n;
-    if (flag_term_segm);
-        r = Sols{p}{scQidx,scPidx}(:,HDidx.r);
-        q = Sols{p}{scQidx,scPidx}(:,HDidx.q);
-    else
-        r = Sols{p}(:,HDidx.r);
-        q = Sols{p}(:,HDidx.q);
-    end;
+
+    r = Sols{p}(:,HDidx.r);
+    q = Sols{p}(:,HDidx.q);
     [r,I] = sort(r);
     q     = q(I);
     if (labels(p));

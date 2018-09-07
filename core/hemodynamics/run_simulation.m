@@ -1,4 +1,4 @@
-function [ sol, times ] = run_simulation( inputFile, roots, mu, rho, P_in, P_ref, Q_in, mExp, rModel, outputFile, imgSize, spacing, HDidx )
+function [ sol, sol_condense, times ] = run_simulation( inputFile, roots, mu, rho, P_in, P_ref, Q_in, mExp, rModel, BCType, outputFile, imgSize, spacing, HDidx )
 %RUN_SIMULATION Given an input vtk file and a set of parameters, perform an
 % hemodynamics simulations and export the result to a .mat file in a matrix
 % forma.
@@ -18,6 +18,9 @@ function [ sol, times ] = run_simulation( inputFile, roots, mu, rho, P_in, P_ref
 %          resistances. Adimensional parameter.
 % rModel:  The resistance model to be used, can be 'Poiseuille' or 
 %          'PoiseuilleTapering'.
+% BCType:  The Boundary Condition method to be used. Valid values are 
+%          'Flow' (for strong imposition of flow) or 'Resistive' (for weak 
+%          imposition of flow).
 % outFile: The file name (with full path) to the .mat file to be created
 %          with the solution.
 % imgSize: Array containing the x and y sizes of the resulting image. Note
@@ -35,6 +38,8 @@ function [ sol, times ] = run_simulation( inputFile, roots, mu, rho, P_in, P_ref
 % flow, pressure, blood velocity and a Mask with "nan" everywhere else. The mask indicates 
 % 0 for arterial segment, 1 for root, 2 for terminal and 3 for bifurcation 
 % point.
+% sol_condense: The solution condense statistics for terminals,
+% bifurcations and segments.
 % times: Array with the times took for running the steps 0 (data
 % prearation), 1 (run simulation) and 2 (postprocessing). Times are
 % measured by the tic/toc functions.
@@ -120,10 +125,6 @@ fprintf(fid, strcat('fileVasculature  = "',outputFile,'_sim_step0.vtk";\n'));
 fprintf(fid, 'radiusArrayName = "Radius";\n');
 % Boolean flag to indicate if the Young Model is to be used in stenosis, or not.
 fprintf(fid, 'useYoungModel = false;\n');
-% The mothodology used to contruct the boundary conditions.
-% 5: inletPressure_outletResistanceMurrayMeanDistalRadius
-%    but the flow is enforced in an strong way.
-fprintf(fid, 'BCMethodology = 5;\n');
 % The resistance model to be used, can be Poiseuille or PoiseuilleTapering.
 fprintf(fid, strcat('ResistanceModel = "', rModel,'";\n'));
 % This parameter reprecent a percentage (range [0,100]) of the arterial length
@@ -136,6 +137,18 @@ fprintf(fid, 'flowBCStrategy = "strong";\n');
 % Scaling factor of terminal (boundary condition) resistance to be used in
 % the construction of boundary conditions (if applicable).
 fprintf(fid, 'scalingFactorR = 1.0;\n');
+% The mothodology used to contruct the boundary conditions.
+% For 'Flow': 
+% 5: inletPressure_outletResistanceMurrayMeanDistalRadius
+%    but the flow is enforced in an strong way.
+% For 'Resistive': 
+% 1: inletPressure_outletResistanceMurrayMeanDistalRadius
+%    but the flow is enforced in a weak way.
+if (strcmp(BCType,'Flow'));
+    fprintf(fid, 'BCMethodology = 5;\n');
+elseif (strcmp(BCType,'Resistive'));
+    fprintf(fid, 'BCMethodology = 1;\n');
+end;
 fclose(fid);
 
 % Performs the simulation
@@ -151,10 +164,10 @@ tic
 movefile(strcat(outputFile,'_vasculature.vtk'), strcat(outputFile,'_sol.vtk'));
 fileStep2sol  = strcat(outputFile,'_sol.vtk');
 
-sol = vtkSimulationResultImporter( fileStep2sol, imgSize, spacing, roots, HDidx );
+[ sol, sol_condense] = vtkSimulationResultImporter( fileStep2sol, imgSize, spacing, roots, HDidx );
 
 % Saves the sol matrix to file
-save(strcat(outputFile,'_sol.mat'), 'sol');
+save(strcat(outputFile,'_sol.mat'), 'sol', 'sol_condense', 'HDidx');
 
 %deletes all auxiliary files except the solution (.mat and .vtk files)
 delete(strcat(outputFile,'_0DModel.vtk'));

@@ -63,7 +63,7 @@ filenamesSCG = {filenamesSCG.name};
 
 %% Reads all condense simulation outputs
 Labels = nan(0,1);
-NSegs   = nan(0,1);
+NSegs  = nan(0,1);
 Ages   = nan(0,1);
 Sexes  = nan(0,1);
 Sol_c  = nan(0,HDidx.mask);
