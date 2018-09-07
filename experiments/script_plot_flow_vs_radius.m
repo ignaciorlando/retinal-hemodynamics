@@ -43,10 +43,18 @@ for p = 1 : length(filenames)
         load(current_filename,'sol_condense');
     end;
 
-    sol_c  = extract_statistic_from_sol_condense( sol_condense, HDidx, 'mean' );
-    sol_c = sol_c(sol_c(:,HDidx.mask)<0,:);
-    Sols(p) = {sol_c};
-
+    Sols  = cell(length(filenames),1);
+    Times = cell(length(filenames),1);
+    for p = 1 : length(filenames)
+        current_filename       = fullfile(input_folder, '/hemodynamic-simulation/', filenames{p});    
+        load(current_filename,'sol_condense');
+    
+        sol_c  = extract_statistic_from_sol_condense( sol_condense, numel(sol_condense), HDidx, 'mean' );
+        sol_c = reshape(sol_c,[size(sol_c,1),size(sol_c,3)]);
+        sol_c = sol_c(sol_c(:,HDidx.mask)<0,:);
+        Sols(p) = {sol_c};
+        
+    end;
 end;
 
 %% Perform the plot of the data and the approximated function
@@ -110,8 +118,8 @@ else
     plot(r_l1, y_l1, 'r','LineWidth',1);
     plot(r_l0, y_l0, 'k','LineWidth',1);    
 end;
-xlabel('Mean radius per segment [cm]','interpreter','latex','fontsize',20);
-ylabel('Flow per segment [ml/s]','interpreter','latex','fontsize',20);
-legend(gca,{'Glaucomatous','Healthy'},'Interpreter','LaTeX','FontSize',20,'Location','NorthWest');
+xlabel('Mean radius per segment [cm]','interpreter','latex','fontsize',16);
+ylabel('Flow per segment [ml/s]','interpreter','latex','fontsize',16);
+legend(gca,{'Glaucomatous','Healthy'},'Interpreter','LaTeX','FontSize',16,'Location','NorthWest');
 
 
